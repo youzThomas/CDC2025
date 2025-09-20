@@ -311,10 +311,6 @@ body {
 #home {
 	text-align: center;
 }
-#home p {
-	max-width: 520px;
-	margin: 0 auto;
-}
 .panel h2 {
 	margin: 0 0 8px;
 }
