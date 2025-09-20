@@ -20,7 +20,9 @@ chips.forEach((c) => c.addEventListener('click', () => show(c.dataset.target)));
 if (location.hash) {
 	const id = location.hash.slice(1);
 	if (document.getElementById(id)) show(id);
-	else toggleMinimap('home');
+	else {
+		toggleMinimap('home');
+	}
 } else {
 	// ensure correct initial minimap state
 	toggleMinimap('home');

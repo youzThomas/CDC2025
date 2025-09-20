@@ -4,6 +4,7 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width,initial-scale=1" />
 		<title>Moonbase • Astronaut Data Challenge</title>
+		<link rel="stylesheet" href="https://fonts.cdnfonts.com/css/averta" />
 		<link rel="stylesheet" href="styles.css" />
 	</head>
 
@@ -26,12 +27,19 @@
 
 	<!-- Navigation -->
 	<!-- Top Nav -->
-	<nav class="nav" role="navigation" aria-label="Primary">
-		<div class="brand">🌙 Moonbase</div>
-		<button class="chip active" data-target="home" aria-controls="home">Home</button>
-		<button class="chip" data-target="viz" aria-controls="viz">Data Visualization</button>
-		<button class="chip" data-target="chat" aria-controls="chat">Chat Bot</button>
-		<button class="chip" data-target="story" aria-controls="story">Story</button>
+		<nav class="nav" role="navigation" aria-label="Primary">
+			<button class="chip active" data-target="home" aria-controls="home" type="button">
+				<span class="chip-label">Home</span>
+		</button>
+		<button class="chip" data-target="viz" aria-controls="viz" type="button">
+			<span class="chip-label">Visuals</span>
+		</button>
+		<button class="chip" data-target="chat" aria-controls="chat" type="button">
+			<span class="chip-label">Chat Bot</span>
+		</button>
+		<button class="chip" data-target="story" aria-controls="story" type="button">
+			<span class="chip-label">Story</span>
+		</button>
 	</nav>
 
 	<main class="scene">
