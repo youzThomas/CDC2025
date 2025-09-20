@@ -1,2 +1,5 @@
-# CDC2025
-Repo for CDC 2025
+# Carolina Data Challenge
+
+# Team: Xiyun Hu, Zhuoran You, Xinyue Yang, Qi Yang
+
+This will be tested as the first commit.
