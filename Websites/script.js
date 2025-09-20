@@ -175,7 +175,7 @@ function drawBar() {
 		ctx.fillRect(x, base - h, Math.max(6, w - 16), h);
 	});
 	ctx.fillStyle = 'rgba(255,255,255,.9)';
-	ctx.font = '16px ui-sans-serif, system-ui';
+	ctx.font = '16px "Exo 2", "Orbitron", ui-sans-serif, system-ui';
 	ctx.fillText(`${yKey} by ${xKey}`, 70, 28);
 }
 
