@@ -75,6 +75,8 @@ get_proportions <- function(data, colname) {
     arrange(desc(prop))
 }
 
+library(dplyr)
+
 
 get_proportions(astr, "BoldReserved")
 get_proportions(astr, "PioneerGlobalist")
@@ -125,7 +127,83 @@ ggplot(distribution_data, aes(x = factor(Test, levels = Test), y = "", fill = Fr
 You can also embed plots, for example:
 
 ```{r pressure, echo=FALSE}
-plot(pressure)
+
+library(dplyr)
+
+
+astr2 <- astr %>%
+  filter(!is.na(Selection.Year), !is.na(Country)) %>%
+  mutate(
+    period = if_else(Selection.Year < 1990, "Before1990", "After1990"),
+    category = if_else(Country %in% c("USA", "Soviet Union", "Russia"),
+                       "USA, SU, Russia", "Other")
+  )
+
+
+tab <- table(astr2$period, astr2$category)
+tab
+
+
+prop.table(tab, margin = 1)
+
+
+chisq.test(tab, correct = FALSE)
+
+prop.test(
+  x = tab[, "USA, SU, Russia"],
+  n = rowSums(tab)
+)
+
+library(ggplot2)
+
+prop_df <- as.data.frame(prop.table(tab, margin = 1))
+colnames(prop_df) <- c("Period", "Category", "Proportion")
+
+
+
+
+prop_df$Period <- factor(prop_df$Period, levels = c("Before1990", "After1990"))
+
+ggplot(prop_df, aes(x = Period, y = Proportion, fill = Category)) +
+  geom_bar(stat = "identity", position = "fill") +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "Proportion of Astronauts by Category",
+       y = "Proportion", x = "Period") +
+  theme_minimal()
+
+
+
+
+tab <- table(astr2$period, astr2$category)
+
+
+counts_df <- as.data.frame.matrix(tab)
+
+
+prop_df <- as.data.frame.matrix(prop.table(tab, margin = 1))
+
+
+summary_df <- counts_df %>%
+  mutate(Period = rownames(counts_df)) %>%
+  relocate(Period) %>%
+  left_join(
+    prop_df %>%
+      mutate(Period = rownames(prop_df)) %>%
+      relocate(Period),
+    by = "Period",
+    suffix = c("_Count", "_Proportion")
+  )
+
+
+print(summary_df)
+
+
+library(knitr)
+kable(summary_df, digits = 3, caption = "Counts and Proportions of Astronaut Categories by Period")
+
+
+
+
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
