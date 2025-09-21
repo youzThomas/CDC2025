@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<title>Moonbase • Astronaut Data Challenge</title>
+		<link rel="stylesheet" href="styles.css" />
+	</head>
+
+	<body>
+		<!-- Starfield & Scene Setup-->
+		<div class="stars"></div>
+		<div class="stars2"></div>
+		<div class="stars3"></div>
+		<div class="earth" aria-hidden="true"></div>
+		<div class="moon"><div class="craters"></div></div>
+	</body>
+
+<!-- Global Minimap (hidden by default) -->
+  <div id="minimap" class="minimap hidden">
+    <div class="moon-map"></div>
+    <div class="map-dot" style="top:20%; left:30%;"></div>
+    <div class="map-dot" style="top:40%; left:60%;"></div>
+    <div class="map-dot" style="top:65%; left:45%;"></div>
+  </div>
+
+	<!-- Navigation -->
+	<!-- Top Nav -->
+	<nav class="nav" role="navigation" aria-label="Primary">
+		<div class="brand">🌙 Moonbase</div>
+		<button class="chip active" data-target="home" aria-controls="home">Home</button>
+		<button class="chip" data-target="viz" aria-controls="viz">Data Visualization</button>
+		<button class="chip" data-target="chat" aria-controls="chat">Chat Bot</button>
+		<button class="chip" data-target="story" aria-controls="story">Story</button>
+	</nav>
+
+	<main class="scene">
+		<div class="wrapper">
+			<section id="home" class="panel active" role="region" aria-live="polite">
+				<h1>Welcome to Moonbase</h1>
+				<p>
+					Stand on the Moon beneath a twinkling universe. Explore our data visuals, chat with an on-page bot, and read
+					the story behind the numbers.
+				</p>
+				<div class="row">
+					<button class="chip active" data-target="home">🏠 Home</button>
+					<button class="chip" data-target="viz">📈 Explore Visuals</button>
+					<button class="chip" data-target="chat">🤖 Try Chat Bot</button>
+					<button class="chip" data-target="story">📜 Read the Story</button>
+				</div>
+			</section>
+
+			<section id="viz" class="panel" aria-label="Data Visualization">
+				<h1>Data Visualization</h1>
+				<canvas id="chart" width="1000" height="420" role="img" aria-label="Chart canvas"></canvas>
+			</section>
+
+			 <section id="chat" class="panel" aria-label="Chat Bot">
+        <h2>Personality Bot (Moon Edition)</h2>
+
+        <!-- Progress -->
+        <div class="progress">
+          <div id="progressFill" class="progress-fill" style="width:0%"></div>
+        </div>
+        <div class="progress-meta">
+          <span id="progressText">Ready</span>
+          <span id="axisHint" aria-live="polite"></span>
+        </div>
+
+        <!-- Transcript -->
+        <div id="botLog" class="messages" aria-live="polite" aria-label="Chat transcript"></div>
+
+        <!-- Choices / Controls -->
+        <div id="choices" class="row" style="margin-top:8px"></div>
+
+        <div class="row">
+          <button id="startAssessment" class="btn">Start Assessment</button>
+          <button id="skipQuestion" class="btn" disabled>Skip</button>
+          <button id="resetAssessment" class="btn" disabled>Reset</button>
+        </div>
+
+        <!-- Result card -->
+        <div id="resultCard" class="result-card" hidden>
+          <h3 id="typeBadge">Type: —</h3>
+          <div class="result-grid">
+            <div>
+              <h4>Your Scores</h4>
+              <ul id="scoreList"></ul>
+            </div>
+            <div>
+              <h4>Strengths</h4>
+              <ul id="strengthsList"></ul>
+            </div>
+            <div>
+              <h4>Team Tips</h4>
+              <ul id="tipsList"></ul>
+            </div>
+            <div>
+              <h4>Suggested Roles</h4>
+              <ul id="rolesList"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+			<section id="story" class="panel" aria-label="Story">
+				<h1>Story: Who Gets to Touch the Stars?</h1>
+				<p>
+					From Cold War rivalries to international cooperation and commercial flights, astronaut demographics mirror
+					global history. Our data explores who went, for how long, and how that’s changing.
+				</p>
+				<ul>
+					<li><strong>Representation:</strong> Which countries and pathways appear most?</li>
+					<li><strong>Longevity:</strong> How mission durations evolved with spacecraft.</li>
+					<li><strong>Forecasts:</strong> Where the next astronauts may come from.</li>
+				</ul>
+			</section>
+
+      <section id="team">
+        <h1>Our Team</h1>
+        <div class="team-grid">
+          <div class="member">Xiyun Hu</div>
+          <div class="member">Zhuoran You</div>
+          <div class="member">Xinyue Yang</div>
+          <div class="member">Qi Yang</div>
+        </div>  
+      </section>  
+	</main>
+
+	<script src="script.js" defer></script>
+</html>
