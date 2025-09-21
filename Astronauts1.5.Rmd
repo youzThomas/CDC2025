@@ -1,0 +1,131 @@
+---
+title: "Astronauts1.5"
+author: "Qi Yang"
+date: "2025-09-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+library(dplyr)
+library(tidyverse)
+library(stringr)
+
+astr$Durations.Mission.duration <- as.numeric(astr$Durations.Mission.duration, na.rm=TRUE)
+
+astr$Total.Flights <- trimws(astr$Total.Flights)
+
+
+astr$Total.Flights[astr$Total.Flights %in% c("", "NA", "n/a", "-", "—", "unknown")] <- NA
+
+
+astr$Total.Flights <- as.numeric(astr$Total.Flights)
+cor(astr$Durations.Mission.duration,astr$Total.Flights)
+
+
+#Create if academic
+astr$if_academic <- ifelse(
+  !is.na(astr$Undergraduate_Major) | !is.na(astr$Graduate_Major),
+  TRUE, FALSE
+)
+
+
+# Bold vs Reserved
+# Find the cutoff value (median EVA duration, ignoring NAs)
+cutoff <- median(astr$Mission.Durations.EVA.duration, na.rm = TRUE)
+
+# Assign BoldReserved based on EVA duration
+astr$BoldReserved <- ifelse(
+  is.na(astr$Mission.Durations.EVA.duration), NA,   # keep NA as NA
+  ifelse(astr$Mission.Durations.EVA.duration > cutoff, "B", "R")
+)
+
+
+
+# Pioneer vs Globalist
+astr$PioneerGlobalist <- ifelse(astr$Selection.Year < 1990 | astr$Country %in% c("USA", "Russia"),
+                                "P", "G")
+
+# Common vs Scholar
+astr$ScholarCommon <- ifelse(astr$if_academic,
+                              "S", "C")
+
+# Leader vs Member
+astr$LeaderMember <- ifelse(
+  astr$Mission.Role %in% c("commander", "pilot"),
+  "L",
+  "M"
+)
+
+# function to calculate proportions for any column
+get_proportions <- function(data, colname) {
+  data %>%
+    filter(!is.na(.data[[colname]])) %>%
+    count(.data[[colname]]) %>%
+    mutate(prop = n / sum(n)) %>%
+    arrange(desc(prop))
+}
+
+
+get_proportions(astr, "BoldReserved")
+get_proportions(astr, "PioneerGlobalist")
+get_proportions(astr, "ScholarCommon")
+get_proportions(astr, "LeaderMember")
+
+astr<-astr%>%
+  mutate(Test=paste0(BoldReserved, PioneerGlobalist, ScholarCommon, LeaderMember))
+
+astr <- astr %>%
+  mutate(Test = case_when(
+    Test %in% c("NANACM", "NANASM", "NAPCM") ~ NA_character_,
+    TRUE ~ Test
+  ))
+
+
+
+astr_cleaned <- astr %>%
+  filter(!is.na(Test)) %>%
+  filter(Test != "NA" & Test != "na" & Test != "N/A")
+
+# Count the frequency of each unique result and sort
+distribution_data <- astr_cleaned %>%
+  count(Test) %>%
+  rename(Frequency = n) %>%
+  arrange(Frequency)
+
+
+ggplot(distribution_data, aes(x = factor(Test, levels = Test), y = "", fill = Frequency)) +
+  geom_tile() +
+  scale_fill_gradient(low = "lightblue", high = "darkblue") + 
+  geom_text(aes(label = Frequency), color = "white", fontface = "bold") +
+  labs(
+    title = "Sorted Distribution of Test Results",
+    x = "Test Results",
+    y = ""
+  ) +
+  theme_minimal() + 
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1), 
+    axis.ticks.y = element_blank(),
+    legend.position = "none" 
+  )
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
