@@ -215,7 +215,25 @@ p
 ```
 
 ```{r}
-astr
+hist(astr$Mission.Durations.EVA.duration)
+  
+hist(astr$Lifetime.Statistics.EVA.duration)
+
+
+
+
+hist(astr$Lifetime.Statistics.EVA.duration,
+     breaks = 30,                     # more bins for detail
+     col = "skyblue",                 # bar color
+     border = "black",                # bar border
+     main = "Histogram of Lifetime EVA Duration",
+     xlab = "EVA Duration",
+     ylab = "Frequency")
+
+
+
+  
+
 
 ```
 
