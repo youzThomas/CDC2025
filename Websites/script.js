@@ -202,135 +202,117 @@ if (location.hash) {
 	if (!crewList || !cardsEl || dots.length === 0) return;
 
 	const storyData = {
-		apollo: {
-			mission: 'Apollo 17 — Taurus-Littrow Valley',
+		'chang-e-4': {
+			mission: "Chang'e-4 • Von Kármán Crater",
 			summary:
-				'NASA’s final Apollo landing paired veteran commanders with the program’s first scientist astronaut to harvest lunar geology.',
+				'On 3 Jan 2019, China soft-landed the Chang’e-4 lander and Yutu-2 rover on the lunar far side, opening a new chapter for science in the South Pole–Aitken basin.',
 			crew: [
-				{ name: 'Gene Cernan', role: 'Commander', agency: 'NASA' },
-				{ name: 'Harrison Schmitt', role: 'Lunar Module Pilot', agency: 'NASA' },
-				{ name: 'Ronald Evans', role: 'Command Module Pilot', agency: 'NASA' },
+				{ name: 'Wu Weiren', role: 'Chief Designer', agency: 'CNSA' },
+				{ name: 'Sun Zezhou', role: 'Mission Commander', agency: 'CNSA' },
+				{ name: 'Yutu-2 Rover Team', role: 'Surface Ops', agency: 'Harbin Institute of Technology' },
 			],
 			cards: [
 				{
-					name: 'Gene Cernan',
+					name: 'Chang’e-4 Lander',
+					title: 'Far-side Observatory',
+					image: 'https://via.placeholder.com/96x96.png?text=C4',
+					description:
+						'Controls relay communications through Queqiao and deploys instruments probing subsurface structure and radiation.',
+					highlight: 'Highlight: Deployed the Lunar Penetrating Radar to map hidden layers below Von Kármán.',
+				},
+				{
+					name: 'Yutu-2 Rover',
+					title: 'Mobile Explorer',
+					image: 'https://via.placeholder.com/96x96.png?text=Y2',
+					description:
+						'Traverses the crater floor, investigating rocks and regolith maturity with panoramic cameras and spectrometers.',
+					highlight: 'Highlight: Logged the longest-running rover mission on the Moon’s far side.',
+				},
+				{
+					name: 'Mission Control',
+					title: 'Relay Coordination',
+					image: 'https://via.placeholder.com/96x96.png?text=MC',
+					description:
+						'Engineers in Beijing choreograph night-day cycles, data downlinks, and health checks via the Queqiao relay satellite.',
+					highlight: 'Highlight: Managed the first lunar far-side biological experiment germinating cotton seeds.',
+				},
+			],
+		},
+		'apollo-11': {
+			mission: 'Apollo 11 • Tranquility Base',
+			summary:
+				'NASA’s July 1969 landing delivered the first humans to the lunar surface, fulfilling a decade of engineering and flight test breakthroughs.',
+			crew: [
+				{ name: 'Neil A. Armstrong', role: 'Commander', agency: 'NASA' },
+				{ name: 'Edwin “Buzz” Aldrin', role: 'Lunar Module Pilot', agency: 'NASA' },
+				{ name: 'Michael Collins', role: 'Command Module Pilot', agency: 'NASA' },
+			],
+			cards: [
+				{
+					name: 'Neil Armstrong',
 					title: 'Mission Commander',
-					image: 'https://via.placeholder.com/96x96.png?text=GC',
+					image: 'https://via.placeholder.com/96x96.png?text=NA',
 					description:
-						'Veteran pilot overseeing EVA choreography and the deployment of experiments on the lunar surface.',
-					highlight: 'Highlight: Last footsteps on the Moon, December 1972.',
+						'Led the descent of Eagle and delivered the historic first steps, deploying cameras and collecting contingency samples.',
+					highlight: 'Highlight: “That’s one small step…” broadcast to an estimated 600 million viewers.',
 				},
 				{
-					name: 'Harrison Schmitt',
-					title: 'Scientist Astronaut',
-					image: 'https://via.placeholder.com/96x96.png?text=HS',
+					name: 'Buzz Aldrin',
+					title: 'Lunar Module Pilot',
+					image: 'https://via.placeholder.com/96x96.png?text=BA',
 					description:
-						'Geologist collecting orange soil samples that reshaped lunar volcanic theories for decades.',
-					highlight: 'Highlight: Returned 110 kg of lunar material.',
+						'Co-piloted Eagle, deployed the EASEP science package, and captured iconic surface photography.',
+					highlight: 'Highlight: Installed the solar wind experiment and U.S. flag at Tranquility Base.',
 				},
 				{
-					name: 'Ronald Evans',
-					title: 'Orbital Specialist',
-					image: 'https://via.placeholder.com/96x96.png?text=RE',
+					name: 'Michael Collins',
+					title: 'CSM Pilot',
+					image: 'https://via.placeholder.com/96x96.png?text=MC',
 					description:
-						'Orbited above in America, relaying comms and capturing sweeping photography for mapping teams.',
-					highlight: 'Highlight: Deep-space EVA to retrieve film canisters.',
-				},
-			],
-		},
-		'iss-expedition': {
-			mission: 'ISS Expedition 70 — Microgravity Lab',
-			summary:
-				'An international crew juggling maintenance, microgravity research, and STEM outreach from low Earth orbit.',
-			crew: [
-				{ name: 'Jasmin Moghbeli', role: 'Commander', agency: 'NASA' },
-				{ name: 'Konstantin Borisov', role: 'Flight Engineer', agency: 'Roscosmos' },
-				{ name: 'Satoshi Furukawa', role: 'Science Lead', agency: 'JAXA' },
-				{ name: 'Andreas Mogensen', role: 'Operations Lead', agency: 'ESA' },
-			],
-			cards: [
-				{
-					name: 'Jasmin Moghbeli',
-					title: 'Crew Commander',
-					image: 'https://via.placeholder.com/96x96.png?text=JM',
-					description:
-						'Oversees daily planning and collision-avoidance drills while mentoring first-time flyers.',
-					highlight: 'Highlight: Coordinated three spacewalks to swap solar array electronics.',
-				},
-				{
-					name: 'Konstantin Borisov',
-					title: 'Systems Engineer',
-					image: 'https://via.placeholder.com/96x96.png?text=KB',
-					description:
-						'Keeps life-support and thermal systems humming, logging anomalies for ground teams.',
-					highlight: 'Highlight: Completed 120+ maintenance tasks in microgravity.',
-				},
-				{
-					name: 'Satoshi Furukawa',
-					title: 'Science Coordinator',
-					image: 'https://via.placeholder.com/96x96.png?text=SF',
-					description:
-						'Leads fluid dynamics and biomanufacturing experiments for future lunar habitats.',
-					highlight: 'Highlight: Streamed live lessons to 40 classrooms worldwide.',
-				},
-				{
-					name: 'Andreas Mogensen',
-					title: 'Operations Lead',
-					image: 'https://via.placeholder.com/96x96.png?text=AM',
-					description:
-						'Runs robotics sessions with Canadarm2 and pilots the station’s handheld lidar demo.',
-					highlight: 'Highlight: Logged the first nighttime aurora survey with new cameras.',
+						'Orbited in Columbia, performing platform alignment, system checks, and rendezvous prep while keeping comms flowing.',
+					highlight: 'Highlight: Executed precise orbital rendezvous bringing Eagle and Columbia back together.',
 				},
 			],
 		},
-		'lunar-gateway': {
-			mission: 'Artemis: Lunar Gateway Concept Crew',
+		'surveyor-7': {
+			mission: 'Surveyor 7 • Tycho Highlands',
 			summary:
-				'A forward-looking manifest for a cislunar outpost staging sustainable Moon missions and Mars prep.',
+				'NASA’s final Surveyor lander touched down on 10 Jan 1968 near Tycho, testing landing techniques and probing highland soil chemistry.',
 			crew: [
-				{ name: 'Naomi Reyes', role: 'Gateway Commander', agency: 'NASA (Placeholder)' },
-				{ name: 'Liang Chen', role: 'Habitation Specialist', agency: 'CNSA (Placeholder)' },
-				{ name: 'Sara Okoye', role: 'Life Sciences Lead', agency: 'CSA (Placeholder)' },
-				{ name: 'Mateo Rossi', role: 'Power Systems Engineer', agency: 'ESA (Placeholder)' },
+				{ name: 'Surveyor Program Office', role: 'Flight Control', agency: 'NASA JPL' },
+				{ name: 'Bendix Engineering Team', role: 'Lander Design', agency: 'Bendix Corp.' },
+				{ name: 'Lunar Science Working Group', role: 'Science Leads', agency: 'Multiple Universities' },
 			],
 			cards: [
 				{
-					name: 'Naomi Reyes',
-					title: 'Gateway Commander',
-					image: 'https://via.placeholder.com/96x96.png?text=NR',
+					name: 'Surveyor 7 Lander',
+					title: 'Robotic Geologist',
+					image: 'https://via.placeholder.com/96x96.png?text=S7',
 					description:
-						'Coordinates logistics for Orion dockings and surface sorties, balancing multiple mission timelines.',
-					highlight: 'Highlight: Simulated 45-day rotation with zero unplanned downtime.',
+						'Acquired images, performed scoop operations, and fired alpha-scattering instruments across two lunar days.',
+					highlight: 'Highlight: Collected 21,000 TV frames and confirmed viable highland landing zones.',
 				},
 				{
-					name: 'Liang Chen',
-					title: 'Habitation Specialist',
-					image: 'https://via.placeholder.com/96x96.png?text=LC',
+					name: 'Television Camera',
+					title: 'Survey Imager',
+					image: 'https://via.placeholder.com/96x96.png?text=TV',
 					description:
-						'Designs modular living quarters and closed-loop recycling systems for rotating crews.',
-					highlight: 'Highlight: Trialed hybrid algae scrubbers for oxygen regeneration.',
+						'Provided high-resolution panoramas to map slopes, boulder fields, and potential Apollo landing hazards.',
+					highlight: 'Highlight: Captured detailed views of Tycho’s ray material for Apollo site planning.',
 				},
 				{
-					name: 'Sara Okoye',
-					title: 'Life Sciences Lead',
-					image: 'https://via.placeholder.com/96x96.png?text=SO',
+					name: 'Mission Specialists',
+					title: 'Operations Crew',
+					image: 'https://via.placeholder.com/96x96.png?text=OPS',
 					description:
-						'Studies radiation countermeasures and nutrient recycling to prep for Mars-class missions.',
-					highlight: 'Highlight: Demonstrated bio-printing of tissue samples in partial gravity.',
-				},
-				{
-					name: 'Mateo Rossi',
-					title: 'Power Systems Engineer',
-					image: 'https://via.placeholder.com/96x96.png?text=MR',
-					description:
-						'Leads solar array deployment drills and energy storage simulations for lunar night ops.',
-					highlight: 'Highlight: Validated modular microwave beaming prototypes.',
+						'Coordinated nightly command uploads and analyzed telemetry to stretch Surveyor 7 beyond its planned lifetime.',
+					highlight: 'Highlight: Achieved 122 hours of science operations before lunar night shutdown.',
 				},
 			],
 		},
 	};
 
-	const defaultStory = 'apollo';
+	const defaultStory = 'chang-e-4';
 
 	function renderCrew(crew = []) {
 		crewList.innerHTML = '';
