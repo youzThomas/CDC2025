@@ -79,25 +79,202 @@ body {
 .earth {
 	position: fixed;
 	left: 50%;
-	top: 46%;
+	top: 44%;
 	transform: translate(-50%, -50%);
-	width: 240px;
-	height: 240px;
+	width: 260px;
+	height: 260px;
 	border-radius: 50%;
-	box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.06), 0 0 60px rgba(91, 209, 255, 0.25) inset;
-	background: radial-gradient(circle at 65% 40%, var(--earth-cloud) 0 14%, transparent 15%),
-		radial-gradient(circle at 20% 60%, var(--earth-green) 0 22%, transparent 23%),
-		radial-gradient(circle at 40% 35%, var(--earth-green) 0 18%, transparent 19%),
-		radial-gradient(circle at 70% 70%, var(--earth-green) 0 16%, transparent 17%),
-		radial-gradient(circle at 50% 50%, var(--earth-blue) 0 100%);
-	animation: drift 60s linear infinite;
+	background:
+		radial-gradient(140% 140% at 30% 28%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 45%),
+		radial-gradient(110% 120% at 70% 68%, rgba(64, 154, 214, 0.4) 0%, rgba(64, 154, 214, 0) 55%),
+		radial-gradient(circle at 50% 50%, #0c4ea4 0%, #053a7a 48%, #012247 100%);
+	box-shadow: 0 0 80px rgba(80, 140, 210, 0.25), inset 0 0 18px rgba(255, 255, 255, 0.45);
+	overflow: hidden;
+	animation: earth-spin 40s linear infinite;
 }
-@keyframes drift {
+
+.earth::before {
+	content: '';
+	position: absolute;
+	inset: 8% 6% 10% 6%;
+	border-radius: 50%;
+	background:
+		radial-gradient(38% 42% at 58% 32%, rgba(78, 170, 120, 0.95) 0%, rgba(38, 110, 78, 0.88) 46%, transparent 64%),
+		radial-gradient(34% 42% at 28% 66%, rgba(86, 177, 130, 0.92) 0%, rgba(46, 112, 86, 0.86) 52%, transparent 70%),
+		radial-gradient(22% 26% at 74% 68%, rgba(196, 173, 110, 0.9) 0%, rgba(146, 128, 92, 0.86) 50%, transparent 68%),
+		radial-gradient(26% 20% at 38% 28%, rgba(70, 186, 142, 0.92) 0%, rgba(34, 120, 94, 0.88) 58%, transparent 72%),
+		radial-gradient(18% 20% at 52% 78%, rgba(70, 186, 142, 0.92) 0%, rgba(33, 114, 90, 0.86) 58%, transparent 74%),
+		radial-gradient(18% 14% at 82% 38%, rgba(212, 187, 122, 0.86) 0%, rgba(150, 129, 95, 0.82) 58%, transparent 74%),
+		radial-gradient(18% 12% at 24% 42%, rgba(71, 176, 134, 0.9) 0%, rgba(40, 118, 94, 0.84) 56%, transparent 72%),
+		radial-gradient(16% 24% at 60% 50%, rgba(68, 164, 124, 0.9) 0%, rgba(36, 108, 86, 0.84) 60%, transparent 78%),
+		radial-gradient(circle at 45% 46%, rgba(90, 192, 146, 0.92) 0 14%, transparent 48%);
+	filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.2));
+}
+.earth::after {
+	content: '';
+	position: absolute;
+	inset: 4% 4% 6% 4%;
+	border-radius: 50%;
+	background:
+		radial-gradient(120% 160% at 40% 30%, rgba(255, 255, 255, 0.36) 0%, rgba(255, 255, 255, 0) 58%),
+		radial-gradient(80% 70% at 60% 68%, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0) 62%);
+	mix-blend-mode: screen;
+	opacity: 0.9;
+	filter: blur(0.3px);
+}
+
+.earth .clouds {
+	position: absolute;
+	inset: 6% 6% 8% 6%;
+	border-radius: 50%;
+	background:
+		radial-gradient(60% 28% at 28% 36%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 70%),
+		radial-gradient(44% 16% at 54% 54%, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0) 72%),
+		radial-gradient(34% 16% at 72% 52%, rgba(255, 255, 255, 0.76) 0%, rgba(255, 255, 255, 0) 74%),
+		radial-gradient(52% 22% at 40% 70%, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0) 76%),
+		radial-gradient(26% 12% at 66% 32%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 75%);
+	filter: blur(1.2px);
+	opacity: 0.75;
+	animation: cloud-drift 80s linear infinite;
+}
+.earth .storm-band {
+	position: absolute;
+	inset: 45% 4% 45% 4%;
+	border-radius: 50%;
+	background:
+		linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 32%, rgba(255, 255, 255, 0.15) 50%,
+			rgba(255, 255, 255, 0.28) 68%, rgba(255, 255, 255, 0) 100%);
+	filter: blur(1px);
+	opacity: 0.6;
+	transform: rotate(8deg);
+	mix-blend-mode: screen;
+}
+.earth .storm-system {
+	position: absolute;
+	width: 110px;
+	height: 110px;
+	border-radius: 50%;
+	left: 62%;
+	top: 46%;
+	background:
+		conic-gradient(from 90deg, rgba(255, 255, 255, 0.48) 0deg, rgba(255, 255, 255, 0.12) 110deg,
+			rgba(255, 255, 255, 0) 220deg),
+		radial-gradient(circle at 58% 40%, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.08) 68%),
+		radial-gradient(circle at 48% 58%, rgba(200, 225, 240, 0.4) 0%, rgba(200, 225, 240, 0) 72%);
+	filter: blur(0.8px);
+	transform: translate(-50%, -50%);
+	opacity: 0.75;
+	animation: storm-spin 22s linear infinite;
+	mix-blend-mode: screen;
+}
+.earth .ocean-swirl {
+	position: absolute;
+	inset: 4% 4% 6% 4%;
+	border-radius: 50%;
+	background:
+		radial-gradient(80% 40% at 38% 42%, rgba(120, 200, 255, 0.3) 0%, rgba(120, 200, 255, 0) 72%),
+		radial-gradient(60% 30% at 66% 56%, rgba(80, 180, 240, 0.22) 0%, rgba(80, 180, 240, 0) 70%),
+		radial-gradient(50% 22% at 44% 68%, rgba(130, 210, 255, 0.26) 0%, rgba(130, 210, 255, 0) 76%);
+	filter: blur(1px);
+	opacity: 0.6;
+	animation: cloud-drift 120s linear reverse infinite;
+}
+.earth .ice-cap {
+	position: absolute;
+	width: 140px;
+	height: 70px;
+	border-radius: 50%;
+	background: radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.92) 0%, rgba(192, 232, 255, 0.8) 40%, rgba(255, 255, 255, 0) 100%);
+	box-shadow: 0 0 14px rgba(255, 255, 255, 0.45);
+	filter: blur(0.2px);
+	opacity: 0.85;
+	left: 50%;
+	transform: translateX(-50%);
+	pointer-events: none;
+}
+.earth .ice-cap.north {
+	top: 8%;
+}
+.earth .ice-cap.south {
+	bottom: 6%;
+	transform: translateX(-50%) rotate(180deg);
+}
+.earth .atmosphere {
+	position: absolute;
+	inset: -6%;
+	border-radius: 50%;
+	background: radial-gradient(circle, rgba(120, 200, 255, 0.35) 0%, rgba(30, 120, 220, 0.16) 40%,
+			rgba(0, 40, 120, 0.08) 72%, rgba(0, 40, 120, 0) 100%);
+	filter: blur(2px);
+	opacity: 0.7;
+	mix-blend-mode: screen;
+	animation: atmosphere-pulse 6s ease-in-out infinite alternate;
+	pointer-events: none;
+}
+.earth .night-mask {
+	position: absolute;
+	inset: 0;
+	border-radius: 50%;
+	background: linear-gradient(110deg, rgba(0, 0, 0, 0.55) 12%, rgba(0, 0, 0, 0.18) 44%, rgba(255, 255, 255, 0) 60%);
+	mix-blend-mode: multiply;
+	opacity: 0.85;
+	pointer-events: none;
+}
+.earth .city-glow {
+	position: absolute;
+	inset: 0;
+	border-radius: 50%;
+	background:
+		radial-gradient(20% 12% at 42% 48%, rgba(255, 226, 150, 0.55) 0%, rgba(255, 226, 150, 0) 65%),
+		radial-gradient(18% 14% at 64% 60%, rgba(255, 206, 120, 0.48) 0%, rgba(255, 206, 120, 0) 62%),
+		radial-gradient(12% 10% at 34% 68%, rgba(255, 216, 140, 0.44) 0%, rgba(255, 216, 140, 0) 66%),
+		radial-gradient(16% 8% at 70% 42%, rgba(255, 218, 160, 0.4) 0%, rgba(255, 218, 160, 0) 70%);
+	filter: blur(1.6px);
+	opacity: 0.35;
+	animation: city-glimmer 12s ease-in-out infinite alternate;
+}
+
+@keyframes earth-spin {
 	from {
-		transform: translate(-50%, -50%) rotate(0);
+		transform: translate(-50%, -50%) rotate(0deg);
 	}
 	to {
 		transform: translate(-50%, -50%) rotate(360deg);
+	}
+}
+@keyframes cloud-drift {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+@keyframes city-glimmer {
+	0% {
+		opacity: 0.25;
+	}
+	50% {
+		opacity: 0.4;
+	}
+	100% {
+		opacity: 0.3;
+	}
+}
+@keyframes storm-spin {
+	from {
+		transform: translate(-50%, -50%) rotate(0deg);
+	}
+	to {
+		transform: translate(-50%, -50%) rotate(360deg);
+	}
+}
+@keyframes atmosphere-pulse {
+	0% {
+		opacity: 0.62;
+	}
+	100% {
+		opacity: 0.78;
 	}
 }
 
