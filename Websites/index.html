@@ -19,9 +19,9 @@
 <!-- Global Minimap (hidden by default) -->
   <div id="minimap" class="minimap hidden">
     <div class="moon-map"></div>
-    <div class="map-dot" style="top:20%; left:30%;"></div>
-    <div class="map-dot" style="top:40%; left:60%;"></div>
-    <div class="map-dot" style="top:65%; left:45%;"></div>
+    <div class="map-dot" data-story="apollo" style="top:20%; left:30%;"></div>
+    <div class="map-dot" data-story="iss-expedition" style="top:40%; left:60%;"></div>
+    <div class="map-dot" data-story="lunar-gateway" style="top:65%; left:45%;"></div>
   </div>
 
 	<!-- Navigation -->
@@ -81,17 +81,19 @@
 			</section>
 
 
-			<section id="story" class="panel" aria-label="Story">
-				<h1>Story: Who Gets to Touch the Stars?</h1>
-				<p>
-					From Cold War rivalries to international cooperation and commercial flights, astronaut demographics mirror
-					global history. Our data explores who went, for how long, and how that’s changing.
-				</p>
-				<ul>
-					<li><strong>Representation:</strong> Which countries and pathways appear most?</li>
-					<li><strong>Longevity:</strong> How mission durations evolved with spacecraft.</li>
-					<li><strong>Forecasts:</strong> Where the next astronauts may come from.</li>
-				</ul>
+			<section id="story" class="panel" aria-label="Mission stories">
+				<header class="story-header">
+					<h1>Mission Stories</h1>
+					<h2 id="storyMissionName" class="story-mission-title">Select a mission to begin</h2>
+					<p id="storyMissionSummary">Tap a marker on the minimap to explore a crew, their journey, and key takeaways.</p>
+				</header>
+				<div class="story-layout">
+					<aside class="story-roster" aria-live="polite">
+						<h2>Flight Crew</h2>
+						<ul id="storyCrewList"></ul>
+					</aside>
+					<section id="storyCards" class="story-cards" aria-live="polite"></section>
+				</div>
 			</section>
 
       <section id="team">

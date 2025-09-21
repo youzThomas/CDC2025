@@ -184,3 +184,225 @@ if (location.hash) {
 	promptEl.addEventListener('input', autoSize);
 	resetChat();
 })();
+
+/*********************************************************
+ * Mission story swapping (minimap dots)
+ *********************************************************/
+(function () {
+	const crewList = document.getElementById('storyCrewList');
+	const cardsEl = document.getElementById('storyCards');
+	const missionTitleEl = document.getElementById('storyMissionName');
+	const missionSummaryEl = document.getElementById('storyMissionSummary');
+	const dots = document.querySelectorAll('#minimap .map-dot');
+	if (!crewList || !cardsEl || dots.length === 0) return;
+
+	const storyData = {
+		apollo: {
+			mission: 'Apollo 17 — Taurus-Littrow Valley',
+			summary:
+				'NASA’s final Apollo landing paired veteran commanders with the program’s first scientist astronaut to harvest lunar geology.',
+			crew: [
+				{ name: 'Gene Cernan', role: 'Commander', agency: 'NASA' },
+				{ name: 'Harrison Schmitt', role: 'Lunar Module Pilot', agency: 'NASA' },
+				{ name: 'Ronald Evans', role: 'Command Module Pilot', agency: 'NASA' },
+			],
+			cards: [
+				{
+					name: 'Gene Cernan',
+					title: 'Mission Commander',
+					image: 'https://via.placeholder.com/96x96.png?text=GC',
+					description:
+						'Veteran pilot overseeing EVA choreography and the deployment of experiments on the lunar surface.',
+					highlight: 'Highlight: Last footsteps on the Moon, December 1972.',
+				},
+				{
+					name: 'Harrison Schmitt',
+					title: 'Scientist Astronaut',
+					image: 'https://via.placeholder.com/96x96.png?text=HS',
+					description:
+						'Geologist collecting orange soil samples that reshaped lunar volcanic theories for decades.',
+					highlight: 'Highlight: Returned 110 kg of lunar material.',
+				},
+				{
+					name: 'Ronald Evans',
+					title: 'Orbital Specialist',
+					image: 'https://via.placeholder.com/96x96.png?text=RE',
+					description:
+						'Orbited above in America, relaying comms and capturing sweeping photography for mapping teams.',
+					highlight: 'Highlight: Deep-space EVA to retrieve film canisters.',
+				},
+			],
+		},
+		'iss-expedition': {
+			mission: 'ISS Expedition 70 — Microgravity Lab',
+			summary:
+				'An international crew juggling maintenance, microgravity research, and STEM outreach from low Earth orbit.',
+			crew: [
+				{ name: 'Jasmin Moghbeli', role: 'Commander', agency: 'NASA' },
+				{ name: 'Konstantin Borisov', role: 'Flight Engineer', agency: 'Roscosmos' },
+				{ name: 'Satoshi Furukawa', role: 'Science Lead', agency: 'JAXA' },
+				{ name: 'Andreas Mogensen', role: 'Operations Lead', agency: 'ESA' },
+			],
+			cards: [
+				{
+					name: 'Jasmin Moghbeli',
+					title: 'Crew Commander',
+					image: 'https://via.placeholder.com/96x96.png?text=JM',
+					description:
+						'Oversees daily planning and collision-avoidance drills while mentoring first-time flyers.',
+					highlight: 'Highlight: Coordinated three spacewalks to swap solar array electronics.',
+				},
+				{
+					name: 'Konstantin Borisov',
+					title: 'Systems Engineer',
+					image: 'https://via.placeholder.com/96x96.png?text=KB',
+					description:
+						'Keeps life-support and thermal systems humming, logging anomalies for ground teams.',
+					highlight: 'Highlight: Completed 120+ maintenance tasks in microgravity.',
+				},
+				{
+					name: 'Satoshi Furukawa',
+					title: 'Science Coordinator',
+					image: 'https://via.placeholder.com/96x96.png?text=SF',
+					description:
+						'Leads fluid dynamics and biomanufacturing experiments for future lunar habitats.',
+					highlight: 'Highlight: Streamed live lessons to 40 classrooms worldwide.',
+				},
+				{
+					name: 'Andreas Mogensen',
+					title: 'Operations Lead',
+					image: 'https://via.placeholder.com/96x96.png?text=AM',
+					description:
+						'Runs robotics sessions with Canadarm2 and pilots the station’s handheld lidar demo.',
+					highlight: 'Highlight: Logged the first nighttime aurora survey with new cameras.',
+				},
+			],
+		},
+		'lunar-gateway': {
+			mission: 'Artemis: Lunar Gateway Concept Crew',
+			summary:
+				'A forward-looking manifest for a cislunar outpost staging sustainable Moon missions and Mars prep.',
+			crew: [
+				{ name: 'Naomi Reyes', role: 'Gateway Commander', agency: 'NASA (Placeholder)' },
+				{ name: 'Liang Chen', role: 'Habitation Specialist', agency: 'CNSA (Placeholder)' },
+				{ name: 'Sara Okoye', role: 'Life Sciences Lead', agency: 'CSA (Placeholder)' },
+				{ name: 'Mateo Rossi', role: 'Power Systems Engineer', agency: 'ESA (Placeholder)' },
+			],
+			cards: [
+				{
+					name: 'Naomi Reyes',
+					title: 'Gateway Commander',
+					image: 'https://via.placeholder.com/96x96.png?text=NR',
+					description:
+						'Coordinates logistics for Orion dockings and surface sorties, balancing multiple mission timelines.',
+					highlight: 'Highlight: Simulated 45-day rotation with zero unplanned downtime.',
+				},
+				{
+					name: 'Liang Chen',
+					title: 'Habitation Specialist',
+					image: 'https://via.placeholder.com/96x96.png?text=LC',
+					description:
+						'Designs modular living quarters and closed-loop recycling systems for rotating crews.',
+					highlight: 'Highlight: Trialed hybrid algae scrubbers for oxygen regeneration.',
+				},
+				{
+					name: 'Sara Okoye',
+					title: 'Life Sciences Lead',
+					image: 'https://via.placeholder.com/96x96.png?text=SO',
+					description:
+						'Studies radiation countermeasures and nutrient recycling to prep for Mars-class missions.',
+					highlight: 'Highlight: Demonstrated bio-printing of tissue samples in partial gravity.',
+				},
+				{
+					name: 'Mateo Rossi',
+					title: 'Power Systems Engineer',
+					image: 'https://via.placeholder.com/96x96.png?text=MR',
+					description:
+						'Leads solar array deployment drills and energy storage simulations for lunar night ops.',
+					highlight: 'Highlight: Validated modular microwave beaming prototypes.',
+				},
+			],
+		},
+	};
+
+	const defaultStory = 'apollo';
+
+	function renderCrew(crew = []) {
+		crewList.innerHTML = '';
+		if (!crew.length) {
+			const empty = document.createElement('li');
+			empty.className = 'story-empty';
+			empty.textContent = 'No crew data available yet.';
+			crewList.appendChild(empty);
+			return;
+		}
+		crew.forEach((person) => {
+			const li = document.createElement('li');
+			const agencyLabel = person.agency ? ` • ${person.agency}` : '';
+			li.innerHTML = `<strong>${person.name}</strong><span>${person.role}${agencyLabel}</span>`;
+			crewList.appendChild(li);
+		});
+	}
+
+	function renderCards(cards = []) {
+		cardsEl.innerHTML = '';
+		if (!cards.length) {
+			const empty = document.createElement('p');
+			empty.className = 'story-empty';
+			empty.textContent = 'Pick a mission marker to load astronaut highlights.';
+			cardsEl.appendChild(empty);
+			return;
+		}
+		cards.forEach((card) => {
+			const article = document.createElement('article');
+			article.className = 'story-card';
+			const header = document.createElement('header');
+			const img = new Image();
+			img.src = card.image;
+			img.alt = `Portrait of ${card.name}`;
+			const meta = document.createElement('div');
+			const title = document.createElement('h3');
+			title.textContent = card.name;
+			const role = document.createElement('p');
+			role.className = 'story-role';
+			role.textContent = card.title;
+			meta.appendChild(title);
+			meta.appendChild(role);
+			header.appendChild(img);
+			header.appendChild(meta);
+			const body = document.createElement('p');
+			body.textContent = card.description;
+			const footer = document.createElement('footer');
+			footer.textContent = card.highlight;
+			article.appendChild(header);
+			article.appendChild(body);
+			article.appendChild(footer);
+			cardsEl.appendChild(article);
+		});
+	}
+
+	function renderStory(id) {
+		const story = storyData[id] || storyData[defaultStory];
+		if (!story) return;
+		dots.forEach((dot) => {
+			dot.classList.toggle('active', dot.dataset.story === id);
+		});
+		if (missionTitleEl) missionTitleEl.textContent = story.mission;
+		if (missionSummaryEl) missionSummaryEl.textContent = story.summary;
+		renderCrew(story.crew);
+		renderCards(story.cards);
+	}
+
+	dots.forEach((dot) => {
+		const id = dot.dataset.story;
+		if (!id) return;
+		const story = storyData[id];
+		if (story) {
+			dot.setAttribute('aria-label', story.mission);
+			dot.title = `View ${story.mission}`;
+		}
+		dot.addEventListener('click', () => renderStory(id));
+	});
+
+	renderStory(defaultStory);
+})();
