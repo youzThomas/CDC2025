@@ -4,6 +4,7 @@
 const chips = document.querySelectorAll('.chip');
 const sections = document.querySelectorAll('section');
 const minimap = document.getElementById('minimap');
+const earthEl = document.querySelector('.earth');
 
 function show(id) {
 	sections.forEach((s) => s.classList.toggle('active', s.id === id));
@@ -14,6 +15,10 @@ function show(id) {
 	if (minimap) {
 		if (id === 'story') minimap.classList.remove('hidden');
 		else minimap.classList.add('hidden');
+	}
+
+	if (earthEl) {
+		earthEl.classList.toggle('hidden', id !== 'home');
 	}
 }
 chips.forEach((c) => c.addEventListener('click', () => show(c.dataset.target)));
