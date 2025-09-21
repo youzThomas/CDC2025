@@ -4,19 +4,19 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width,initial-scale=1" />
 		<title>Moonbase • Astronaut Data Challenge</title>
-		<link rel="stylesheet" href="Websites/styles.css" />
+		<link rel="stylesheet" href="./styles.css" />
+		<script type="module" src="https://public.tableau.com/javascripts/api/tableau.embedding.3.latest.min.js"></script>
 	</head>
 
 	<body>
-		<!-- Starfield & Scene Setup-->
+
 		<div class="stars"></div>
 		<div class="stars2"></div>
 		<div class="stars3"></div>
 		<div class="earth" aria-hidden="true"></div>
 		<div class="moon"><div class="craters"></div></div>
-	</body>
 
-<!-- Global Minimap (hidden by default) -->
+
   <div id="minimap" class="minimap hidden">
     <div class="moon-map"></div>
     <div class="map-dot" data-story="chang-e-4" style="top:20%; left:30%;"></div>
@@ -24,8 +24,7 @@
     <div class="map-dot" data-story="surveyor-7" style="top:65%; left:45%;"></div>
   </div>
 
-	<!-- Navigation -->
-	<!-- Top Nav -->
+
 	<nav class="nav" role="navigation" aria-label="Primary">
 		<div class="brand">🌙 Moonbase</div>
 		<button class="chip active" data-target="home" aria-controls="home">Home</button>
@@ -46,11 +45,6 @@
 			</section>
 
 			<section id="viz" class="panel" aria-label="Data Visualization">
-				<h1>Data Visualization</h1>
-				<canvas id="chart" width="1000" height="420" role="img" aria-label="Chart canvas"></canvas>
-			</section>
-			
-			<section id="viz" class="panel" aria-label="Data Visualization">
 				<h1>Data Visualization Gallery</h1>
 
 				<section id="viz" class="panel">
@@ -63,33 +57,50 @@
 				</section>
 				<div id="tbList" class="tb-list"></div>
 
-				<!-- Stats Graphs (image section) -->
+
 				<div class="subsec">
 					<h3 class="subsec-title">Stats Graphs</h3>
 					<p class="subsec-desc">Key visuals from our analysis. Click to view full size.</p>
 					<div class="img-grid">
-						<!-- Replace src with your own images -->
+
 						<a class="img-card" href="pictures/asset1.png" target="_blank" rel="noopener">
-							<img src="pictures/asset1.png" alt="Astronaut counts over time" loading="lazy">
+							<img src="pictures/asset1.png" alt="Non-Military Astronauts Over Time" loading="lazy">
 							<span class="img-cap">Percentage of Non-Military Astronauts Selected Over Time</span>
 						</a>
 						<a class="img-card" href="pictures/asset2.png" target="_blank" rel="noopener">
-							<img src="pictures/asset2.png" alt="Mission duration distribution" loading="lazy">
+							<img src="pictures/asset2.png" alt="Correlations" loading="lazy">
 							<span class="img-cap">Correlations with 'Space Flights' and 'Space Walks'</span>
 						</a>
 						<a class="img-card" href="pictures/asset3.png" target="_blank" rel="noopener">
-							<img src="pictures/asset3.png" alt="Agencies by country" loading="lazy">
+							<img src="pictures/asset3.png" alt="Mission role" loading="lazy">
 							<span class="img-cap">Mission Age Distribution by Mission Role</span>
 						</a>
 					</div>
 				</div>
+				
+				<div class="subsec">
+					<h3 class="subsec-title">More Stats Graphs</h3>
+					<p class="subsec-desc">How can the graphs show trendings? Click to view full size.</p>
+					<div class="img-grid three">
+						<a class="img-card" href="pictures/asset4.png" target="_blank" rel="noopener">
+							<img src="pictures/asset4.png" alt="Proportion of Astronauts by Category" loading="lazy">
+							<span class="img-cap">Proportion of Astronauts by Category</span>
+						</a>
+						<a class="img-card" href="pictures/asset5.png" target="_blank" rel="noopener">
+							<img src="pictures/asset5.png" alt="Proportion of Astronauts by Category" loading="lazy">
+							<span class="img-cap">Proportion of Astronauts by Category</span>
+						</a>
+						<a class="img-card" href="pictures/asset6.png" target="_blank" rel="noopener">
+							<img src="pictures/asset6.png" alt="Proportion of Astronauts by Category" loading="lazy">
+							<span class="img-cap">Proportion of Astronauts by Category</span>
+						</a>
+					</div>
+				</div>
 
-				<!-- Astronaut Type Test (headline + three pictures) -->
 				<div class="subsec">
 					<h3 class="subsec-title">Astronaut Type Test</h3>
 					<p class="subsec-desc">Peek at the four-axis model we use in the chatbot and examples of team profiles.</p>
 					<div class="img-grid three">
-						<!-- Replace src with your own images -->
 						 <a class="img-card" href="pictures/type1.png" target="_blank" rel="noopener">
       			 <img src="pictures/type1.png" alt="Astronaut" loading="lazy">
 							<figcaption class="img-cap">ASTRONAUT TYPE TEST</figcaption>
@@ -106,31 +117,87 @@
 				</div>
 			</section>
 			
-			<section id="chat" class="panel" aria-label="Chat Bot">
+			<section id="chat" class="panel active" aria-label="Chat Bot">
 				<header class="panel-header">
-					<h2>Moonbase Copilot</h2>
-					<p class="panel-subtitle">Ask about astronaut trends, mission data, or the story behind the stars.</p>
-				</header>
-				<div class="chat-shell" role="region" aria-live="polite" aria-label="Chat transcript">
-					<div id="chatLog" class="chat-log"></div>
-				</div>
-				<div id="chatSuggestions" class="chat-suggestions" aria-hidden="false">
-					<button class="chip" type="button" data-prompt="Summarize astronaut selection trends over time.">Astronaut selection trends</button>
-					<button class="chip" type="button" data-prompt="What insights can I share about crew diversity?">Crew diversity insight</button>
-					<button class="chip" type="button" data-prompt="Help me pitch this data story to judges.">Pitch to judges</button>
-					<button class="chip" type="button" data-prompt="Suggest visuals to highlight mission duration patterns.">Visual ideas</button>
-				</div>
-				<form id="chatForm" class="chat-input" autocomplete="off">
-					<label class="sr-only" for="chatPrompt">Message Moonbase Copilot</label>
-					<textarea id="chatPrompt" name="prompt" rows="1" placeholder="Ask anything about the challenge…" required></textarea>
-					<div class="chat-actions">
-						<button id="chatReset" type="button" class="btn btn-ghost">Clear</button>
-						<button id="chatSend" type="submit" class="btn" aria-label="Send message">Send</button>
-					</div>
-				</form>
-				<p id="chatStatus" class="chat-status" aria-live="polite">Ready for launch.</p>
-			</section>
+					<h2>Moonbase Copilot - What kind of career pathway fits you?</h2>
 
+				<p id="chatStatus" class="chat-status" aria-live="polite">Ready for launch.</p>
+
+				<hr class="panel-sep" />
+
+				<section class="subpanel" aria-label="LLM Assessment">
+					<h3>Position Fit & Astronaut Type</h3>
+					<div class="row" style="gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+						<select id="fitGender" required>
+							<option value="" disabled selected>Gender</option>
+							<option>Female</option>
+							<option>Male</option>
+						</select>
+
+						<input id="fitAge" type="number"  min="18" max="80" placeholder="Age" required />
+
+						<input id="fitMilitary"placeholder="Military status (e.g., 'Colonel, US Navy' or 'None')" />
+
+						<select id="fitDiscipline" required>
+							<option value="" disabled selected>Undergrad discipline</option>
+							<option value="engineering">Engineering</option>
+							<option value="physical_sciences">Physical Sciences</option>
+							<option value="life_sciences">Life Sciences</option>
+							<option value="math">Math</option>
+							<option value="other/unknown">Other/Unknown</option>
+						</select>
+					</div>
+
+					<div class="row" style="gap:10px; flex-wrap:wrap; margin-top:8px;">
+						<input id="uName" placeholder="Your name (optional)" />
+						<input id="uBackground" placeholder="Background (e.g., student, major)" />
+						<input id="uSkills" placeholder="Key skills (comma-separated)" />
+						<input id="uInterests" placeholder="Interests (comma-separated)" />
+					</div>
+
+					<div class="row" style="align-items:center; gap:10px; margin-top:12px;">
+						<button id="p2Start" class="btn" type="button">Submit and get ready for a tiny assessment</button>
+						<button id="p2Skip" class="btn" type="button" disabled>Skip</button>
+						<button id="p2Reset" class="btn btn-ghost" type="button" disabled>Reset</button>
+
+						<div class="progress" style="flex:1; min-width:180px;">
+							<div id="p2Fill" class="progress-fill" style="width:0%"></div>
+						</div>
+						<div class="progress-meta">
+							<span id="p2Text">Ready</span>
+							<span aria-hidden="true"> • </span>
+							<span id="p2Axis"></span>
+						</div>
+					</div>
+
+
+					<div id="p2Log" class="messages" aria-live="polite" aria-label="Assessment transcript"></div>
+					<div id="p2Choices" class="choices"></div>
+
+					<article id="fitCard" class="result-card" hidden>
+						<h4>Recommended Roles</h4>
+						<p id="fitSummary" class="result-summary">—</p>
+						<ul id="fitRoles" class="result-list"></ul>
+						<p id="fitWhy" class="result-why"></p>
+					</article>
+
+
+					<article id="typeCard" class="result-card" hidden>
+						<h4>Astronaut Type</h4>
+						<p id="typeSummary" class="result-summary">—</p>
+						<div class="result-grid">
+							<div>
+								<h5>Strengths</h5>
+								<ul id="typeStrengths" class="result-list"></ul>
+							</div>
+							<div>
+								<h5>Tips</h5>
+								<ul id="typeTips" class="result-list"></ul>
+							</div>
+						</div>
+					</article>
+				</section>
+			</section>
 
 			<section id="story" class="panel" aria-label="Mission stories">
 				<header class="story-header">
@@ -158,5 +225,6 @@
       </section>  
 	</main>
 
-	<script src="Websites/script.js" defer></script>
+	<script src="./script.js" defer></script>
+</body>
 </html>

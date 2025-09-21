@@ -1,6 +1,3 @@
-/*********************************************************
- * Simple SPA router (top nav chips) + minimap toggle
- *********************************************************/
 const chips = document.querySelectorAll('.chip');
 const sections = document.querySelectorAll('section');
 const minimap = document.getElementById('minimap');
@@ -27,9 +24,6 @@ if (location.hash) {
 	if (document.getElementById(id)) show(id);
 }
 
-/*********************************************************
- * Optional: generate extra craters procedurally (visual)
- *********************************************************/
 (function generateCraters() {
 	const moon = document.querySelector('.moon');
 	if (!moon) return;
@@ -56,143 +50,288 @@ if (location.hash) {
 	}
 })();
 
-/*********************************************************
- * Moonbase Copilot — conversational assistant UI
- *********************************************************/
 (function () {
-	const form = document.getElementById('chatForm');
-	const promptEl = document.getElementById('chatPrompt');
-	const logEl = document.getElementById('chatLog');
-	const statusEl = document.getElementById('chatStatus');
-	const suggestions = document.getElementById('chatSuggestions');
-	const sendBtn = document.getElementById('chatSend');
-	const resetBtn = document.getElementById('chatReset');
-	if (!form || !promptEl || !logEl) return;
+	// DOM
+	const p2Start = document.getElementById('p2Start');
+	const p2Skip = document.getElementById('p2Skip');
+	const p2Reset = document.getElementById('p2Reset');
+	const p2Log = document.getElementById('p2Log');
+	const p2Choices = document.getElementById('p2Choices');
+	const p2Fill = document.getElementById('p2Fill');
+	const p2Text = document.getElementById('p2Text');
+	const p2Axis = document.getElementById('p2Axis');
 
-	const systemMessage = {
-		role: 'system',
-		content:
-			'You are Moonbase Copilot, an AI guide for the Astronaut Data Challenge. Answer succinctly, reference mission or demographic insights when useful, and keep responses under 180 words.',
-	};
-	const history = [];
-	let busy = false;
+	// 4 inputs (Prompt 1)
+	const fitGender = document.getElementById('fitGender');
+	const fitAge = document.getElementById('fitAge');
+	const fitMilitary = document.getElementById('fitMilitary');
+	const fitDiscipline = document.getElementById('fitDiscipline');
 
-	function updateStatus(text) {
-		if (statusEl) statusEl.textContent = text;
-	}
+	// optional profile (for flavor text)
+	const uName = document.getElementById('uName');
+	const uBackground = document.getElementById('uBackground');
+	const uSkills = document.getElementById('uSkills');
+	const uInterests = document.getElementById('uInterests');
 
-	function setBusy(state) {
-		busy = state;
-		if (sendBtn) sendBtn.disabled = state;
-		promptEl.disabled = state;
-		if (state) {
-			updateStatus('Consulting mission control…');
-		}
-	}
+	// Result cards
+	const fitCard = document.getElementById('fitCard');
+	const fitSummary = document.getElementById('fitSummary');
+	const fitRoles = document.getElementById('fitRoles');
+	const fitWhy = document.getElementById('fitWhy');
 
-	function createBubble(text) {
+	const typeCard = document.getElementById('typeCard');
+	const typeSummary = document.getElementById('typeSummary');
+	const typeStrengths = document.getElementById('typeStrengths');
+	const typeTips = document.getElementById('typeTips');
+
+	if (!p2Start) return;
+
+	// State
+	const MAX_Q = 20;
+	let QUESTIONS = [];
+	let idx = -1;
+	let finished = false;
+	const answers = []; // [{id,pair,yes,reverse}]
+	const profile = () => ({
+		name: (uName?.value || '').trim(),
+		background: (uBackground?.value || '').trim(),
+		skills: (uSkills?.value || '').trim(),
+		interests: (uInterests?.value || '').trim(),
+	});
+
+	function appendMessage(text, role = 'bot') {
+		const wrap = document.createElement('div');
+		wrap.className = 'msg ' + role;
+
 		const bubble = document.createElement('div');
 		bubble.className = 'bubble';
-		const lines = text.split(/\n/);
-		lines.forEach((line, idx) => {
-			if (idx) bubble.appendChild(document.createElement('br'));
-			bubble.appendChild(document.createTextNode(line));
-		});
-		return bubble;
-	}
+		bubble.textContent = text;
 
-	function appendMessage(role, text) {
-		const message = document.createElement('div');
-		message.className = `chat-message ${role}`;
+		wrap.appendChild(bubble);
+		p2Log.appendChild(wrap);
+
+		// auto-scroll to bottom
+		p2Log.scrollTop = p2Log.scrollHeight;
+	}
+	const say = (t) => {
+		const d = document.createElement('div');
+		d.className = 'msg bot';
+
+		// avatar
 		const avatar = document.createElement('div');
 		avatar.className = 'avatar';
-		avatar.textContent = role === 'user' ? '🧑‍🚀' : '🤖';
-		message.appendChild(avatar);
-		message.appendChild(createBubble(text));
-		logEl.appendChild(message);
-		logEl.scrollTo({ top: logEl.scrollHeight, behavior: 'smooth' });
+		avatar.innerHTML = '<img src="pictures/robot.jpg" alt="Bot" />';
+
+		// bubble
+		const bubble = document.createElement('div');
+		bubble.className = 'bubble';
+		bubble.textContent = t;
+
+		d.appendChild(avatar);
+		d.appendChild(bubble);
+
+		p2Log.appendChild(d);
+		p2Log.scrollTop = p2Log.scrollHeight;
+	};
+
+	const me = (t) => {
+		const d = document.createElement('div');
+		d.className = 'msg me';
+
+		const bubble = document.createElement('div');
+		bubble.className = 'bubble';
+		bubble.textContent = t;
+
+		const avatar = document.createElement('div');
+		avatar.className = 'avatar';
+		avatar.innerHTML = '<img src="pictures/me.jpg" alt="Bot" />';
+
+		d.appendChild(bubble);
+		d.appendChild(avatar);
+
+		p2Log.appendChild(d);
+		p2Log.scrollTop = p2Log.scrollHeight;
+	};
+
+	const axisLabel = (pair) =>
+		({ BR: 'Bold vs Reserved', PG: 'Pioneer vs Globalist', SC: 'Scholar vs Common', LM: 'Leader vs Member' }[pair] ||
+		pair);
+	function updateProgress() {
+		const pct = Math.max(0, Math.min(100, ((idx + 1) / MAX_Q) * 100));
+		p2Fill.style.width = pct.toFixed(0) + '%';
+		if (idx < 0) {
+			p2Text.textContent = 'Ready';
+			p2Axis.textContent = '';
+		} else if (idx < MAX_Q) {
+			p2Text.textContent = `Q ${idx + 1}/${MAX_Q}`;
+			p2Axis.textContent = axisLabel(QUESTIONS[idx].pair);
+		} else {
+			p2Text.textContent = 'Done';
+			p2Axis.textContent = '';
+		}
 	}
 
-	function resetChat() {
-		history.length = 0;
-		logEl.innerHTML = '';
-		if (suggestions) {
-			suggestions.classList.remove('hidden');
-			suggestions.setAttribute('aria-hidden', 'false');
-		}
-		appendMessage('bot', 'Moonbase Copilot online. Ask about astronaut data, mission stories, or presentation ideas.');
-		updateStatus('Ready for launch.');
-		promptEl.value = '';
-		autoSize();
+	function reset() {
+		idx = -1;
+		finished = false;
+		answers.length = 0;
+		p2Log.innerHTML = '';
+		p2Choices.replaceChildren();
+		p2Skip.disabled = true;
+		p2Reset.disabled = true;
+		fitCard.hidden = true;
+		typeCard.hidden = true;
+		updateProgress();
 	}
 
-	async function sendMessage(content) {
-		if (!content) return;
-		appendMessage('user', content);
-		history.push({ role: 'user', content });
-		if (suggestions && !suggestions.classList.contains('hidden')) {
-			suggestions.classList.add('hidden');
-			suggestions.setAttribute('aria-hidden', 'true');
+	// Step 1: send 4 inputs → recommended roles
+	async function getFitRecommendation() {
+		const payload = {
+			gender: (fitGender.value || '').trim(),
+			mission_age: Number(fitAge.value || 0),
+			military_status: (fitMilitary.value || '').trim() || 'None',
+			discipline: (fitDiscipline.value || '').trim(),
+		};
+		const res = await fetch('/api/fit/recommend', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(payload),
+		});
+		if (!res.ok) throw new Error('fit/recommend failed');
+		return res.json();
+	}
+
+	// Step 2: ask server for 20 questions
+	async function getQuestions() {
+		const res = await fetch('/api/type/questions', { method: 'POST' });
+		if (!res.ok) throw new Error('type/questions failed');
+		const data = await res.json();
+		return data.questions || [];
+	}
+
+	// Step 3: after 20 answers, post to server for scoring
+	async function scoreAnswers() {
+		const res = await fetch('/api/type/score', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ answers, profile: profile() }),
+		});
+		if (!res.ok) throw new Error('type/score failed');
+		return res.json();
+	}
+
+	function renderQ(q) {
+		if (finished) return;
+		p2Choices.replaceChildren();
+		say(q.text);
+
+		const yesBtn = document.createElement('button');
+		yesBtn.className = 'btn';
+		yesBtn.textContent = 'Yes';
+		yesBtn.onclick = () => {
+			if (finished) return;
+			me('Yes');
+			answers.push({ ...q, yes: true });
+			next();
+		};
+
+		const noBtn = document.createElement('button');
+		noBtn.className = 'btn';
+		noBtn.textContent = 'No';
+		noBtn.onclick = () => {
+			if (finished) return;
+			me('No');
+			answers.push({ ...q, yes: false });
+			next();
+		};
+
+		const skipBtn = document.createElement('button');
+		skipBtn.className = 'btn';
+		skipBtn.textContent = 'Not sure';
+		skipBtn.onclick = () => {
+			if (finished) return;
+			me('(skip)');
+			answers.push({ ...q, yes: null });
+			next();
+		};
+
+		p2Choices.append(yesBtn, noBtn, skipBtn);
+		p2Skip.disabled = false;
+	}
+
+	async function next() {
+		if (finished) return;
+		idx++;
+		updateProgress();
+		if (idx >= MAX_Q) {
+			return finish();
 		}
-		setBusy(true);
+		renderQ(QUESTIONS[idx]);
+	}
+
+	async function finish() {
+		finished = true;
+		p2Choices.replaceChildren();
+		p2Skip.disabled = true;
+		p2Reset.disabled = false;
+
+		say('Thanks! Calculating your astronaut type…');
 		try {
-			const res = await fetch('/api/chat', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ messages: [systemMessage, ...history] }),
-			});
-			if (!res.ok) throw new Error(`HTTP ${res.status}`);
-			const data = await res.json();
-			const reply = (data && (data.reply || data.message || data.content)) || 'I could not generate a response.';
-			history.push({ role: 'assistant', content: reply });
-			appendMessage('bot', reply.trim());
-			updateStatus('Awaiting your next question.');
-		} catch (err) {
-			console.error('[chat-error]', err);
-			appendMessage('bot', 'I hit interference while contacting mission control. Please try again.');
-			updateStatus('Connection interrupted.');
-		} finally {
-			setBusy(false);
+			const out = await scoreAnswers();
+			typeSummary.textContent = `${out.summary} (Type: ${out.type})`;
+			typeStrengths.innerHTML = (out.strengths || []).map((s) => `<li>${s}</li>`).join('');
+			typeTips.innerHTML = (out.tips || []).map((s) => `<li>${s}</li>`).join('');
+			typeCard.hidden = false;
+		} catch (e) {
+			console.error(e);
+			say('⚠️ Could not score your answers. Please try again.');
 		}
 	}
 
-	function autoSize() {
-		promptEl.style.height = 'auto';
-		promptEl.style.height = Math.min(promptEl.scrollHeight, 160) + 'px';
-	}
+	// Events
+	p2Start.addEventListener('click', async () => {
+		reset();
+		// A) recommend roles from the 4 inputs
+		say('Analyzing your background for role recommendations…');
+		try {
+			const fit = await getFitRecommendation();
+			fitSummary.textContent = fit.summary || '—';
+			fitWhy.textContent = fit.why || '';
+			fitRoles.innerHTML = (fit.roles || []).map((r) => `<li>${r}</li>`).join('') || '<li>—</li>';
+			fitCard.hidden = false;
+		} catch (e) {
+			console.error(e);
+			say('⚠️ Could not fetch recommended roles.');
+		}
 
-	suggestions?.addEventListener('click', (event) => {
-		const target = event.target.closest('[data-prompt]');
-		if (!target) return;
-		const suggestion = target.getAttribute('data-prompt');
-		if (!suggestion) return;
-		promptEl.value = suggestion;
-		autoSize();
-		promptEl.focus();
+		// B) fetch questions
+		say('Preparing 20 questions…');
+		try {
+			QUESTIONS = await getQuestions();
+			if (!Array.isArray(QUESTIONS) || QUESTIONS.length !== 20) throw new Error('bad question count');
+			say('Answer Yes/No (skip if unsure).');
+			p2Reset.disabled = false;
+			next();
+		} catch (e) {
+			console.error(e);
+			say('⚠️ Could not load questions. Please try again.');
+			finished = true;
+		}
 	});
 
-	form.addEventListener('submit', (event) => {
-		event.preventDefault();
-		if (busy) return;
-		const prompt = promptEl.value.trim();
-		if (!prompt) return;
-		promptEl.value = '';
-		autoSize();
-		sendMessage(prompt);
+	p2Skip.addEventListener('click', () => {
+		if (!finished && idx >= 0 && idx < MAX_Q) {
+			me('(skip)');
+			answers.push({ ...QUESTIONS[idx], yes: null });
+			next();
+		}
 	});
 
-	resetBtn?.addEventListener('click', () => {
-		if (busy) return;
-		resetChat();
-	});
+	p2Reset.addEventListener('click', reset);
 
-	promptEl.addEventListener('input', autoSize);
-	resetChat();
+	updateProgress();
 })();
 
-/*********************************************************
- * Mission story swapping (minimap dots)
- *********************************************************/
 (function () {
 	const crewList = document.getElementById('storyCrewList');
 	const cardsEl = document.getElementById('storyCards');
@@ -260,8 +399,7 @@ if (location.hash) {
 					name: 'Buzz Aldrin',
 					title: 'Lunar Module Pilot',
 					image: 'https://via.placeholder.com/96x96.png?text=BA',
-					description:
-						'Co-piloted Eagle, deployed the EASEP science package, and captured iconic surface photography.',
+					description: 'Co-piloted Eagle, deployed the EASEP science package, and captured iconic surface photography.',
 					highlight: 'Highlight: Installed the solar wind experiment and U.S. flag at Tranquility Base.',
 				},
 				{
@@ -340,27 +478,38 @@ if (location.hash) {
 			cardsEl.appendChild(empty);
 			return;
 		}
-			cards.forEach((card) => {
-				const article = document.createElement('article');
-				article.className = 'story-card';
-				const header = document.createElement('header');
-				header.className = 'story-card-header';
-				const meta = document.createElement('div');
-				const title = document.createElement('h3');
-				title.textContent = card.name;
-				const role = document.createElement('p');
-				role.className = 'story-role';
-				role.textContent = card.title;
-				meta.appendChild(title);
-				meta.appendChild(role);
-				header.appendChild(meta);
+		cards.forEach((card) => {
+			const article = document.createElement('article');
+			article.className = 'story-card';
+			const header = document.createElement('header');
+			header.className = 'story-card-header';
+			const meta = document.createElement('div');
+			const title = document.createElement('h3');
+			title.textContent = card.name;
+			const role = document.createElement('p');
+			role.className = 'story-role';
+			role.textContent = card.title;
+			meta.appendChild(title);
+			meta.appendChild(role);
+			header.appendChild(meta);
 			const body = document.createElement('p');
 			body.textContent = card.description;
-			const footer = document.createElement('footer');
-			footer.textContent = card.highlight;
+			// Highlight block (improved styling)
+			const highlightWrap = document.createElement('div');
+			highlightWrap.className = 'story-highlight';
+			const hlLabel = document.createElement('span');
+			hlLabel.className = 'hl-label';
+			hlLabel.textContent = 'Highlight';
+			const hlText = document.createElement('span');
+			hlText.className = 'hl-text';
+			// Remove any leading 'Highlight:' prefix from data to avoid duplication
+			const cleaned = (card.highlight || '').replace(/^\s*highlight\s*:\s*/i, '');
+			hlText.textContent = cleaned;
+			highlightWrap.appendChild(hlLabel);
+			highlightWrap.appendChild(hlText);
 			article.appendChild(header);
 			article.appendChild(body);
-			article.appendChild(footer);
+			article.appendChild(highlightWrap);
 			cardsEl.appendChild(article);
 		});
 	}
@@ -390,12 +539,15 @@ if (location.hash) {
 
 	renderStory(defaultStory);
 
-
 	(function () {
 		const PER_PAGE = 4;
 
 		// ======= YOUR LINKS HERE (url + optional name) =======
 		const PRESET_LINKS = [
+			{
+				url: 'https://public.tableau.com/views/astronauts_17435559954980/Sheet9?:language=zh-CN&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link',
+				name: 'Count of Mission Roles ',
+			},
 			{
 				url: 'https://public.tableau.com/views/astronauts_17435559954980/Sheet2?:language=en-US&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link',
 				name: 'Undergraduate Areas',
@@ -419,10 +571,6 @@ if (location.hash) {
 			{
 				url: 'https://public.tableau.com/views/astronauts_17435559954980/Sheet8?:language=zh-CN&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link',
 				name: 'Military Branches',
-			},
-			{
-				url: 'https://public.tableau.com/views/astronauts_17435559954980/Sheet9?:language=zh-CN&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link',
-				name: 'Count of Mission Roles ',
 			},
 			{
 				url: 'https://public.tableau.com/views/astronauts_17435559954980/Sheet11?:language=zh-CN&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link',
@@ -564,4 +712,3 @@ if (location.hash) {
 		if (document.getElementById('viz')?.classList.contains('active')) render();
 	})();
 })();
-
