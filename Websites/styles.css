@@ -453,6 +453,9 @@ canvas {
 }
 
 /* Story */
+#story.panel {
+	padding: 42px 42px 48px;
+}
 .story-header {
 	margin-bottom: 18px;
 	display: flex;
