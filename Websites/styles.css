@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700&display=swap');
+
 :root {
 	--space: #0c355c;
 	--space-2: #0a2a49;
@@ -26,7 +28,7 @@ body {
 	margin: 0;
 	color: var(--text);
 	background: radial-gradient(1200px 800px at 50% -10%, #123d6b 0%, var(--space) 40%, var(--space-2) 100%);
-	font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji',
+	font-family: 'Oxanium', 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, 'Apple Color Emoji',
 		'Segoe UI Emoji';
 	overflow-x: hidden;
 }
