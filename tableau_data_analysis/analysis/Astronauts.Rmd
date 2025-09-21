@@ -1,0 +1,348 @@
+---
+title: "Astronauts"
+author: "Qi Yang"
+date: "2025-09-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+```
+
+
+```{r}
+library(dplyr)
+library(tidyverse)
+
+
+International <- read.csv("C:\\Users\\HUAWEI\\Downloads\\International Astronaut Database.csv")
+Social_Science <- read.csv("C:\\Users\\HUAWEI\\Downloads\\Social_Science.csv")%>%rename("Name"="Profile.Name")
+Astronauts<-read.csv("C:\\Users\\HUAWEI\\Downloads\\Astronauts.csv")
+
+
+
+
+International$Name <- sub(",.*", "", International$Name)
+
+Social_Science$Name <- trimws(gsub("^([^,]+),\\s*([^,]+)(.*)$", "\\2 \\1", Social_Science$Name))
+
+
+
+intermediate_join <- full_join(International,
+                               Social_Science,
+                               by = "Name")
+
+
+final_outer_join <- full_join(intermediate_join,
+                              Astronauts,
+                              by = "Name")
+
+
+view(final_outer_join)
+
+write.csv(final_outer_join, "final_outer_join2.csv", row.names = FALSE)
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+library(dplyr)
+library(stringr)
+
+
+astr<-read.csv("C:\\Users\\HUAWEI\\Desktop\\STOR390\\final_outer_join2.csv")
+
+
+unique(astr$Undergraduate.Major)
+
+
+
+if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
+if (!requireNamespace("stringr", quietly = TRUE)) install.packages("stringr")
+library(dplyr)
+library(stringr)
+
+
+get_clean <- function(x) {
+  x2 <- ifelse(is.na(x), "", as.character(x))
+  str_trim(str_to_lower(x2))
+}
+
+maj <- get_clean(astr$Undergraduate.Major)
+
+astr <- astr %>%
+  mutate(
+    undg_area = case_when(
+      # 1 Aerospace / Aeronautics / Astronautics
+      str_detect(maj, "aerospace|aeronautic|aeronautics|astronautic|astronautics|aeronautics &|aerospace engineering") ~ "Aerospace Engineering",
+
+      # 2 Mechanical
+      str_detect(maj, "\\bmechanical\\b|mechanical engineering|mechanical &|mechanics\\b") ~ "Mechanical Engineering",
+
+      # 3 Engineering Mechanics (explicit)
+      str_detect(maj, "engineering mechanics|mechanics engineering") ~ "Engineering Mechanics",
+
+      # 4 Electrical
+      str_detect(maj, "\\belectri|electrical engineering|electrical science") & !str_detect(maj, "electrical.*computer|electrical; computer") ~ "Electrical Engineering",
+
+      # 5 Electronics
+      str_detect(maj, "\\belectronics\\b|electronics engineering") ~ "Electronics Engineering",
+
+      # 6 Electrical + Computer overlap (explicit combined)
+      str_detect(maj, "electrical.*computer|electrical; computer|electrical & computer|electrical and computer") ~ "Electrical & Computer (EECS)",
+
+      # 7 Civil / Structural
+      str_detect(maj, "\\bcivil\\b|civil engineering|structural") ~ "Civil / Structural Engineering",
+
+      # 8 Ocean / Naval / Marine
+      str_detect(maj, "ocean engineering|naval|nautical|marine engineering|nautical science|naval sciences|marine & nautical") ~ "Naval / Marine / Ocean Engineering",
+
+      # 9 Industrial / Systems / Engineering Management
+      str_detect(maj, "industrial management|industrial engineering|systems engineering|engineering management|management engineering|engineering management") ~ "Industrial / Systems / Engineering Management",
+
+      # 10 Chemical
+      str_detect(maj, "chemical engineering|chemical &|chemical\\b") ~ "Chemical Engineering",
+
+      # 11 Nuclear
+      str_detect(maj, "nuclear engineering|nuclear\\b") ~ "Nuclear Engineering",
+
+      # 12 Materials / Metallurgical / Ceramic
+      str_detect(maj, "metallurg|metallurgical|materials\\b|ceramic|ceramics|metallurgy") ~ "Materials / Metallurgy / Ceramic Engineering",
+
+      # 13 Engineering Physics
+      str_detect(maj, "engineering physics|physics.*engineering|physics & engineering") ~ "Engineering Physics",
+
+      # 14 Engineering Science / General Engineering / Applied Science & Engineering
+      str_detect(maj, "engineering science|engineering sciences|general engineering|applied science & engineering|applied science") ~ "Engineering Science / Applied Engineering",
+
+      # 15 Mechanical & Aeronautical combos (if not already matched)
+      str_detect(maj, "mechanical & aeronautical|mechanical.*aeronautic|mechanical.*aerospace") ~ "Mechanical / Aerospace Combined",
+
+      # 16 Computer Science / CS
+      str_detect(maj, "\\bcomputer science\\b|\\bcomputer\\b|cs\\b|informatics\\b") ~ "Computer Science",
+
+      # 17 Software / Applied CS / EECS-alike (if explicit)
+      str_detect(maj, "software engineering|software developer") ~ "Software Engineering",
+
+      # 18 Data / Statistics / Applied Math
+      str_detect(maj, "data science|data analytics|data analyst|machine learning|statistics|statistic(s)?|biostatistics|probability") ~ "Data Science / Statistics",
+
+      # 19 Mathematics (pure)
+      str_detect(maj, "\\bmathematics\\b|\\bmath\\b|mathematical\\b") & !str_detect(maj, "applied") ~ "Mathematics",
+
+      # 20 Applied Mathematics
+      str_detect(maj, "applied mathematics|applied math") ~ "Applied Mathematics",
+
+      # 21 Physics (pure)
+      str_detect(maj, "\\bphysics\\b|physics &|physics;") & !str_detect(maj, "space physics|astronomy") ~ "Physics",
+
+      # 22 Astronomy / Space Physics / Astrophysics
+      str_detect(maj, "astronom|astro|space physics|astrophys") ~ "Astronomy / Space Science",
+
+      # 23 Chemistry / Chemical Sciences
+      str_detect(maj, "\\bchemistry\\b|chemical science|chemistry &") ~ "Chemistry",
+
+      # 24 Earth, Planetary, Geosciences, Solid Earth
+      str_detect(maj, "geology|geoscience|geosciences|earth & planetary|earth sciences|solid earth|planetary") ~ "Earth & Planetary / Geosciences",
+
+      # 25 Ecology / Environmental / Oceanography (oceanography distinct)
+      str_detect(maj, "ecolog|environmental|oceanography|ocean science") ~ "Environmental / Ecology / Oceanography",
+
+      # 26 Biology / Life Science (broad)
+      str_detect(maj, "\\bbio\\b|biology|biological|bioscience|biological science") & !str_detect(maj, "biochemistry|molecular") ~ "Biology / Life Sciences",
+
+      # 27 Biochemistry / Molecular Biology
+      str_detect(maj, "biochemistry|molecular biology|molecular") ~ "Biochemistry / Molecular Biology",
+
+      # 28 Human Biology / Physiology / Neuroscience / Physiological Optics
+      str_detect(maj, "human biology|physiology|physiological|neuro|neuroscience|physiological optics|physiological optics") ~ "Human Biology / Physiology / Neuroscience",
+
+      # 29 Agricultural / Animal / Nutrition
+      str_detect(maj, "animal science|animal nutrition|agricultur|agronomy|marine & nautical") & !str_detect(maj, "marine engineering") ~ "Agricultural / Animal Science / Nutrition",
+
+      # 30 Psychology
+      str_detect(maj, "\\bpsycholog(y|ical)\\b") ~ "Psychology",
+
+      # 31 Economics
+      str_detect(maj, "\\beconomics\\b|econometric") ~ "Economics",
+
+      # 32 Business / Finance / Management / Accounting
+      str_detect(maj, "business|management|finance|accounting|business economics|business finance|business management|industrial management") ~ "Business / Finance / Management / Accounting",
+
+      # 33 Education
+      str_detect(maj, "\\beducation\\b|teaching|educator") ~ "Education",
+
+      # 34 Philosophy / Humanities / Languages / Literature
+      str_detect(maj, "philosophy|humanities|english\\b|russian\\b|literature|linguistics") ~ "Philosophy / Humanities / Languages",
+
+      # 35 Music / Arts / Creative Arts
+      str_detect(maj, "music|arts|creative arts|visual arts|performing arts") ~ "Music / Arts",
+
+      # 36 Military Science
+      str_detect(maj, "\\bmilitary\\b|military science|naval sciences") ~ "Military Science / Naval Studies",
+
+      # 37 Accounting for compound fields like "Physics; English" or "Mathematics & Physics"
+      # We already match Physics/Math/English etc; this line is a fallback for any remaining semicolon combinations
+      str_detect(maj, ";") ~ "Multi / Combined Majors",
+
+      # 38 Missing / Unknown
+      maj == "" ~ "Unknown / Missing",
+
+      # 39 Fallback other-specific
+      TRUE ~ "Other / Unclassified"
+    )
+  )
+
+
+cat("Category counts:\n")
+print(sort(table(astr$undg_area, useNA = "ifany"), decreasing = TRUE))
+
+astr$grad_area <- dplyr::case_when(
+  # ---- Engineering ----
+  grepl("Aerospace|Aeronautics|Astronautics|Aviation|Flight|Space Technology|Space Systems|Space Operations|Space Physics", astr$Graduate.Major, ignore.case = TRUE) ~ "Aerospace / Astronautics / Aviation",
+  grepl("Mechanical", astr$Graduate.Major, ignore.case = TRUE) ~ "Mechanical Engineering",
+  grepl("Electrical|Electronics|Computer Engineering", astr$Graduate.Major, ignore.case = TRUE) ~ "Electrical / Electronics Engineering",
+  grepl("Industrial", astr$Graduate.Major, ignore.case = TRUE) ~ "Industrial Engineering",
+  grepl("Civil|Hydraulic|Ocean Engineering", astr$Graduate.Major, ignore.case = TRUE) ~ "Civil / Ocean / Hydraulic Engineering",
+  grepl("Chemical Engineering|Polymer", astr$Graduate.Major, ignore.case = TRUE) ~ "Chemical Engineering",
+  grepl("Materials|Metallurgical|Ceramic", astr$Graduate.Major, ignore.case = TRUE) ~ "Materials Engineering",
+  grepl("Engineering Physics|Applied Physics|Solid State|Plasma|Astrogeophysics|Atmospheric Physics", astr$Graduate.Major, ignore.case = TRUE) ~ "Engineering Physics / Applied Physics",
+  grepl("Engineering Management|Systems Management|Operations Research", astr$Graduate.Major, ignore.case = TRUE) ~ "Engineering / Systems Management",
+  grepl("Systems Engineering|Engineering Mechanics|Safety Engineering", astr$Graduate.Major, ignore.case = TRUE) ~ "Systems / Mechanics / Safety Engineering",
+  grepl("General Engineering|Engineering$", astr$Graduate.Major, ignore.case = TRUE) ~ "General Engineering",
+
+  # ---- Physical & Natural Sciences ----
+  grepl("Physics|Astrophysics|Astronomy|Planetary|Solar|Space Science|Geophysics|Seismology", astr$Graduate.Major, ignore.case = TRUE) ~ "Physics / Astronomy / Space Sciences",
+  grepl("Chemistry|Biochemistry|Physical Chemistry", astr$Graduate.Major, ignore.case = TRUE) ~ "Chemistry / Biochemistry",
+  grepl("Mathematics|Applied Mathematics", astr$Graduate.Major, ignore.case = TRUE) ~ "Mathematics",
+  grepl("Geology|Earth Sciences|Geosciences|Oceanography|Meteorology|Environmental Science|Biometeorology", astr$Graduate.Major, ignore.case = TRUE) ~ "Earth / Environmental Sciences",
+  grepl("Biology|Microbiology|Physiology|Biochemistry|Cancer Biology", astr$Graduate.Major, ignore.case = TRUE) ~ "Biological Sciences",
+
+  # ---- Computer & Information ----
+  grepl("Computer Science|Computer Systems|Information Systems", astr$Graduate.Major, ignore.case = TRUE) ~ "Computer Science / Information Systems",
+
+  # ---- Medicine & Health ----
+  grepl("Medicine|Medical|Public Health|Biomedical|Bioengineering|Aerospace Medicine|Veterinary", astr$Graduate.Major, ignore.case = TRUE) ~ "Medicine / Health Sciences",
+
+  # ---- Business, Policy & Law ----
+  grepl("Business|Administration|Management|Economics|Finance", astr$Graduate.Major, ignore.case = TRUE) ~ "Business / Management",
+  grepl("Public Administration|Policy|International Relations", astr$Graduate.Major, ignore.case = TRUE) ~ "Public Policy / Administration",
+  grepl("Law", astr$Graduate.Major, ignore.case = TRUE) ~ "Law",
+
+  # ---- Education & Other ----
+  grepl("Education", astr$Graduate.Major, ignore.case = TRUE) ~ "Education",
+  grepl("Strategic Studies|National Security|Military", astr$Graduate.Major, ignore.case = TRUE) ~ "Strategic / Security Studies",
+  is.na(astr$Graduate.Major) | astr$Graduate.Major == "" ~ "Unknown / NA",
+
+  TRUE ~ "Other"
+)
+
+
+astr <- astr %>%
+  mutate(
+    first_edu = word(Institute, 1, sep = ";"),
+    second_edu = word(Institute, 2, sep = ";")
+  )
+
+
+astr <- astr %>%
+  mutate(Gender_prop = sum(Gender == "Woman", na.rm = TRUE) / n(),
+         total_duration = sum(Profile.Lifetime.Statistics.Mission.duration, na.rm = TRUE),
+         nat_total_flight = sum(Total.Flights, na.rm = TRUE),
+         birth_city = str_extract(Birth.Place, "^[^,]+")
+         ) %>%
+  ungroup()
+
+astr <- astr %>%
+  mutate(Gender = case_when(
+    Gender %in% c("Woman", "Female", "F") ~ "Female",
+    Gender %in% c("Man", "Male", "M") ~ "Male",
+    TRUE ~ "Other"
+  ))
+
+
+
+astr <- astr %>%
+  mutate(
+    Gender = coalesce(Gender, Profile.Gender),   
+    Gender = case_when(
+      Gender %in% c("Woman", "Female", "F") ~ "Female",
+      Gender %in% c("Man", "Male", "M") ~ "Male",
+      TRUE ~ "Other"
+    )
+  )%>%
+  select(-Profile.Gender)
+
+astr <- astr %>%
+  mutate(
+    Birth.Date = mdy(Birth.Date),           
+    Birth.Year = year(Birth.Date),
+    Birth.Month = month(Birth.Date),
+    Birth.Day = day(Birth.Date)
+  )
+
+cor(astr$Gender_prop,astr$total_duration)
+
+astr <- astr %>%
+  mutate(
+    Birth.Year = coalesce(Birth.Year, Profile.Birth.Year)
+  )
+
+write.csv(astr,"astr.csv",row.names = FALSE)
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+```{r}
+
+astr<-read.csv("C:\\Users\\HUAWEI\\Desktop\\STOR390\\astr.csv")
+
+
+
+astr$Mission_Age <- as.numeric(astr$Mission_Age,na.rm=TRUE)
+
+
+library(ggplot2)
+library(dplyr)
+
+
+astr$Mission_Age <- as.numeric(astr$Mission_Age)
+
+
+ggplot(data = astr, aes(x = Mission_Age)) +
+  geom_histogram(binwidth = 5, fill = "lightblue", color = "darkblue", na.rm = TRUE) +
+  labs(title = "Distribution of Astronaut Mission Age",
+       x = "Mission Age (Years)",
+       y = "Count") +
+  theme_minimal()
+```
+
+```{r}
+
+astr$Selection_Age <- as.numeric(astr$Selection_Age,na.rm=TRUE)
+
+ggplot(data = astr, aes(x = Selection_Age)) +
+  geom_histogram(binwidth = 5, fill = "blue", color = "purple", na.rm = TRUE) +
+  labs(title = "Distribution of Astronaut Mission Age",
+       x = "Selection Age (Years)",
+       y = "Count") +
+  theme_minimal()
+```
+
+```{r}
+
+

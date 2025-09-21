@@ -1,0 +1,221 @@
+---
+title: "Astronauts"
+author: "Qi Yang"
+date: "2025-09-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+
+library(dplyr)
+library(tidyverse)
+astr<-read.csv("C:\\Users\\HUAWEI\\Desktop\\STOR390\\astr_semfin.csv")
+
+
+astr_cleaned <- astr %>%
+  filter(!is.na(Test)) %>%
+  filter(Test != "NA" & Test != "na" & Test != "N/A")
+
+
+distribution_data <- astr_cleaned %>%
+  count(Test) %>%
+  rename(Frequency = n) %>%
+  arrange(Frequency)
+
+
+ggplot(distribution_data, aes(x = factor(Test, levels = Test), y = "", fill = Frequency)) +
+  geom_tile() +
+  scale_fill_gradient(low = "lightblue", high = "darkblue") + 
+  geom_text(aes(label = Frequency), color = "white", fontface = "bold") + 
+  labs(
+    title = "Sorted Distribution of Test Results",
+    x = "Test Results",
+    y = ""
+  ) +
+  theme_minimal() + 
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1), 
+    axis.ticks.y = element_blank(),
+    legend.position = "none" 
+  )
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r}
+
+
+astr_cleaned <- astr %>%
+  filter(!is.na(Test)) %>%
+  filter(Test != "NA" & Test != "na" & Test != "N/A")
+
+
+distribution_data <- astr_cleaned %>%
+  count(Test) %>%
+  rename(Frequency = n) %>%
+  slice_max(n = 16, order_by = Frequency) %>% 
+  arrange(desc(Frequency)) 
+
+# Reshape the data into a 4x4 grid structure
+
+grid_data <- distribution_data %>%
+  mutate(
+    row = (row_number() - 1) %/% 4,
+    col = (row_number() - 1) %% 4
+  )
+
+
+ggplot(grid_data, aes(x = col, y = row, fill = Frequency)) +
+  geom_tile(color = "white", size = 1.5) +
+  scale_fill_gradient(low = "lightblue", high = "darkblue") + 
+  geom_text(aes(label = paste(Test, "\n(", Frequency, ")", sep = "")),
+            color = "white", fontface = "bold", size = 4) +
+  labs(
+    title = "Sorted Distribution of 16 Test Results (4x4 Grid)",
+    fill = "Frequency"
+  ) +
+  scale_x_continuous(breaks = NULL) + 
+  scale_y_continuous(breaks = NULL) + 
+  coord_fixed() + 
+  theme_void() + 
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    legend.position = "right"
+  )
+
+
+```
+```{r}
+
+astr_cleaned <- astr %>%
+  filter(!is.na(Test)) %>%
+  filter(Test != "NA" & Test != "na" & Test != "N/A")
+
+
+distribution_data <- astr_cleaned %>%
+  count(Test) %>%
+  rename(Frequency = n) %>%
+  slice_max(n = 16, order_by = Frequency) %>% 
+  arrange(desc(Frequency)) 
+
+
+grid_data <- distribution_data %>%
+  mutate(
+    row = (row_number() - 1) %/% 4,
+    col = (row_number() - 1) %% 4
+  )
+
+
+legend_data <- data.frame(
+  abbrev = c("C", "S", "L", "M", "B", "R", "P", "G"),
+  meaning = c("Common", "Scholar", "Leader", "Member", 
+              "Bold", "Reserved", "Pioneer", "Globalist")
+)
+
+
+p <- ggplot(grid_data, aes(x = col, y = row, fill = Frequency)) +
+  geom_tile(color = "white", size = 1.5) +
+  scale_fill_gradient(low = "lightblue", high = "darkblue") +
+  geom_text(aes(label = paste(Test, "\n(", Frequency, ")", sep = "")),
+            color = "white", fontface = "bold", size = 5) +
+  labs(
+    title = "Sorted Distribution of 16 Test Results (4x4 Grid)",
+    fill = "Frequency"
+  ) +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL) +
+  coord_fixed() +
+  theme_void() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    legend.position = "right"
+  )
+
+
+p + geom_point(
+    data = legend_data,
+    aes(x = -1, y = -1, shape = abbrev, color = abbrev), # dummy invisible points
+    inherit.aes = FALSE
+  ) +
+  scale_shape_manual(
+    name = "Legend",
+    values = rep(15, nrow(legend_data)), # all square shapes
+    labels = legend_data$meaning
+  ) +
+  scale_color_manual(
+    name = "Legend",
+    values = rep("black", nrow(legend_data)), # all black
+    labels = legend_data$meaning
+  ) +
+  guides(color = guide_legend(override.aes = list(shape = 15, size = 5)))
+
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+library(ggplot2)
+
+p <- ggplot(grid_data, aes(x = col, y = row, fill = Frequency)) +
+  geom_tile(color = "white", size = 1.5) +
+  scale_fill_gradient(low = "lightblue", high = "darkblue") +
+  geom_text(aes(label = paste(Test, "\n(", Frequency, ")", sep = "")),
+            color = "white", fontface = "bold", size = 5) +
+  labs(
+    title = "Sorted Distribution of 16 Test Results (4x4 Grid)",
+    fill = "Frequency"
+  ) +
+  scale_x_continuous(breaks = NULL, limits = c(-0.5, 6)) +   
+  scale_y_continuous(breaks = NULL, limits = c(-0.5, 3.5)) +
+  coord_fixed(clip = "off") +
+  theme_void() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    legend.position = "bottom"
+  ) +
+  guides(fill = guide_colorbar(title.position = "right"))
+
+
+p <- p + annotate("text", x = 4.5, y = 3.2,
+                  label = "Legend (pair ends)",
+                  fontface = "bold", size = 5, hjust = 0)
+
+# Legend pairs (one line per pair)
+pairs <- c(
+  "B = Bold     —  R = Reserved",
+  "L = Leader   —  M = Member",
+  "S = Scholar  —  C = Common",
+  "B = Bold     —  R = Reserved"
+)
+
+for (i in seq_along(pairs)) {
+  p <- p + annotate("text", x = 4.5, y = 3.2 - i*0.6,
+                    label = pairs[i], hjust = 0, size = 4)
+}
+
+p
+
+
+
+
+
+
+```
+
+```{r}
+astr
+
+```
+
