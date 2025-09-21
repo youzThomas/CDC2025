@@ -55,53 +55,30 @@
 				<canvas id="chart" width="1000" height="420" role="img" aria-label="Chart canvas"></canvas>
 			</section>
 
-			 <section id="chat" class="panel" aria-label="Chat Bot">
-        <h2>Personality Bot (Moon Edition)</h2>
-
-        <!-- Progress -->
-        <div class="progress">
-          <div id="progressFill" class="progress-fill" style="width:0%"></div>
-        </div>
-        <div class="progress-meta">
-          <span id="progressText">Ready</span>
-          <span id="axisHint" aria-live="polite"></span>
-        </div>
-
-        <!-- Transcript -->
-        <div id="botLog" class="messages" aria-live="polite" aria-label="Chat transcript"></div>
-
-        <!-- Choices / Controls -->
-        <div id="choices" class="row" style="margin-top:8px"></div>
-
-        <div class="row">
-          <button id="startAssessment" class="btn">Start Assessment</button>
-          <button id="skipQuestion" class="btn" disabled>Skip</button>
-          <button id="resetAssessment" class="btn" disabled>Reset</button>
-        </div>
-
-        <!-- Result card -->
-        <div id="resultCard" class="result-card" hidden>
-          <h3 id="typeBadge">Type: —</h3>
-          <div class="result-grid">
-            <div>
-              <h4>Your Scores</h4>
-              <ul id="scoreList"></ul>
-            </div>
-            <div>
-              <h4>Strengths</h4>
-              <ul id="strengthsList"></ul>
-            </div>
-            <div>
-              <h4>Team Tips</h4>
-              <ul id="tipsList"></ul>
-            </div>
-            <div>
-              <h4>Suggested Roles</h4>
-              <ul id="rolesList"></ul>
-            </div>
-          </div>
-        </div>
-      </section>
+			<section id="chat" class="panel" aria-label="Chat Bot">
+				<header class="panel-header">
+					<h2>Moonbase Copilot</h2>
+					<p class="panel-subtitle">Ask about astronaut trends, mission data, or the story behind the stars.</p>
+				</header>
+				<div class="chat-shell" role="region" aria-live="polite" aria-label="Chat transcript">
+					<div id="chatLog" class="chat-log"></div>
+				</div>
+				<div id="chatSuggestions" class="chat-suggestions" aria-hidden="false">
+					<button class="chip" type="button" data-prompt="Summarize astronaut selection trends over time.">Astronaut selection trends</button>
+					<button class="chip" type="button" data-prompt="What insights can I share about crew diversity?">Crew diversity insight</button>
+					<button class="chip" type="button" data-prompt="Help me pitch this data story to judges.">Pitch to judges</button>
+					<button class="chip" type="button" data-prompt="Suggest visuals to highlight mission duration patterns.">Visual ideas</button>
+				</div>
+				<form id="chatForm" class="chat-input" autocomplete="off">
+					<label class="sr-only" for="chatPrompt">Message Moonbase Copilot</label>
+					<textarea id="chatPrompt" name="prompt" rows="1" placeholder="Ask anything about the challenge…" required></textarea>
+					<div class="chat-actions">
+						<button id="chatReset" type="button" class="btn btn-ghost">Clear</button>
+						<button id="chatSend" type="submit" class="btn" aria-label="Send message">Send</button>
+					</div>
+				</form>
+				<p id="chatStatus" class="chat-status" aria-live="polite">Ready for launch.</p>
+			</section>
 
 
 			<section id="story" class="panel" aria-label="Story">

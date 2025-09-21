@@ -52,306 +52,135 @@ if (location.hash) {
 })();
 
 /*********************************************************
- * MBTI-style Assessment (front-end scoring + LLM explain)
+ * Moonbase Copilot — conversational assistant UI
  *********************************************************/
 (function () {
-	// ----- Elements
-	const startBtn = document.getElementById('startAssessment');
-	const skipBtn = document.getElementById('skipQuestion');
-	const resetBtn = document.getElementById('resetAssessment');
-	const logEl = document.getElementById('botLog');
-	const choices = document.getElementById('choices');
-	const progFill = document.getElementById('progressFill');
-	const progText = document.getElementById('progressText');
-	const axisHint = document.getElementById('axisHint');
+	const form = document.getElementById('chatForm');
+	const promptEl = document.getElementById('chatPrompt');
+	const logEl = document.getElementById('chatLog');
+	const statusEl = document.getElementById('chatStatus');
+	const suggestions = document.getElementById('chatSuggestions');
+	const sendBtn = document.getElementById('chatSend');
+	const resetBtn = document.getElementById('chatReset');
+	if (!form || !promptEl || !logEl) return;
 
-	const resultCard = document.getElementById('resultCard');
-	const typeBadge = document.getElementById('typeBadge');
-	const scoreList = document.getElementById('scoreList');
-	const strengthsUl = document.getElementById('strengthsList');
-	const tipsUl = document.getElementById('tipsList');
-	const rolesUl = document.getElementById('rolesList');
+	const systemMessage = {
+		role: 'system',
+		content:
+			'You are Moonbase Copilot, an AI guide for the Astronaut Data Challenge. Answer succinctly, reference mission or demographic insights when useful, and keep responses under 180 words.',
+	};
+	const history = [];
+	let busy = false;
 
-	if (!startBtn) return; // not on this page
-
-	// ----- Question bank (12 demo; expand to 24–32 for reliability)
-	const questions = [
-		{
-			id: 'E1',
-			axis: 'EI',
-			type: 'ab',
-			text: 'At a hackathon kickoff, you prefer to…',
-			a: { label: 'Meet everyone & whiteboard', score: { EI: +1 } },
-			b: { label: 'Read docs quietly first', score: { EI: -1 } },
-		},
-		{
-			id: 'S1',
-			axis: 'SN',
-			type: 'likert',
-			target_pole: 'S',
-			text: 'I trust tested methods over novel ideas.',
-			weights: { 1: -2, 2: -1, 3: 0, 4: +1, 5: +2 },
-		},
-		{
-			id: 'T1',
-			axis: 'TF',
-			type: 'ab',
-			text: 'When teammates disagree, you lean toward…',
-			a: { label: 'Objective criteria & tradeoffs', score: { TF: +1 } },
-			b: { label: 'Perspectives & team harmony', score: { TF: -1 } },
-		},
-		{
-			id: 'J1',
-			axis: 'JP',
-			type: 'likert',
-			target_pole: 'J',
-			text: 'I like locking a plan early and executing it.',
-			weights: { 1: -2, 2: -1, 3: 0, 4: +1, 5: +2 },
-		},
-		{
-			id: 'E2',
-			axis: 'EI',
-			type: 'likert',
-			target_pole: 'E',
-			text: 'I recharge through group brainstorming.',
-			weights: { 1: -2, 2: -1, 3: 0, 4: +1, 5: +2 },
-		},
-		{
-			id: 'S2',
-			axis: 'SN',
-			type: 'ab',
-			text: 'Faced with ambiguous data, you…',
-			a: { label: 'Gather more concrete examples', score: { SN: +1 } },
-			b: { label: 'Sketch patterns & hypotheses', score: { SN: -1 } },
-		},
-		{
-			id: 'T2',
-			axis: 'TF',
-			type: 'likert',
-			target_pole: 'T',
-			text: 'I value consistent logic over personal preference.',
-			weights: { 1: -2, 2: -1, 3: 0, 4: +1, 5: +2 },
-		},
-		{
-			id: 'J2',
-			axis: 'JP',
-			type: 'ab',
-			text: 'Your ideal workflow is…',
-			a: { label: 'Kanban with clear milestones', score: { JP: +1 } },
-			b: { label: 'Flexible exploration & pivots', score: { JP: -1 } },
-		},
-		{
-			id: 'E3',
-			axis: 'EI',
-			type: 'ab',
-			text: 'During presentations, you…',
-			a: { label: 'Enjoy presenting & Q&A', score: { EI: +1 } },
-			b: { label: 'Prefer others present', score: { EI: -1 } },
-		},
-		{
-			id: 'S3',
-			axis: 'SN',
-			type: 'likert',
-			target_pole: 'N',
-			text: 'I’m energized by imagining future possibilities.',
-			weights: { 1: -2, 2: -1, 3: 0, 4: +1, 5: +2 },
-		},
-		{
-			id: 'T3',
-			axis: 'TF',
-			type: 'ab',
-			text: 'For model selection, you lean toward…',
-			a: { label: 'Metrics & error analysis', score: { TF: +1 } },
-			b: { label: 'Use-case fit & user impact', score: { TF: -1 } },
-		},
-		{
-			id: 'J3',
-			axis: 'JP',
-			type: 'likert',
-			target_pole: 'P',
-			text: 'I like to keep options open until late.',
-			weights: { 1: -2, 2: -1, 3: 0, 4: +1, 5: +2 },
-		},
-	];
-
-	// ----- State
-	let i = -1;
-	let finished = false; // <— lock flag to stop after finish
-	const scores = { EI: 0, SN: 0, TF: 0, JP: 0 };
-
-	// ----- UI helpers
-	function say(t) {
-		append(t, 'bot');
+	function updateStatus(text) {
+		if (statusEl) statusEl.textContent = text;
 	}
-	function user(t) {
-		append(t, 'me');
-	}
-	function append(text, cls) {
-		const d = document.createElement('div');
-		d.className = 'msg ' + cls;
-		d.textContent = text;
-		logEl.appendChild(d);
-		logEl.scrollTop = logEl.scrollHeight;
-	}
-	function axisLabel(ax) {
-		const map = {
-			EI: 'Expedition (E) ↔ Inward (I)',
-			SN: 'Sensor (S) ↔ Navigator (N)',
-			TF: 'Tactician (T) ↔ Fellow (F)',
-			JP: 'Journey-planner (J) ↔ Pathfinder (P)',
-		};
-		return map[ax] || ax;
-	}
-	function updateProgress() {
-		const total = questions.length;
-		const idx = Math.max(-1, Math.min(i, total)); // clamp
 
-		const pct = Math.max(0, Math.min(100, ((idx + 1) / total) * 100));
-		progFill.style.width = pct.toFixed(0) + '%';
-
-		// If we're between -1 and total-1, show Q x/y; if we've just finished, show Done.
-		if (idx >= 0 && idx < total) {
-			progText.textContent = `Q ${idx + 1}/${total}`;
-			axisHint.textContent = axisLabel(questions[idx].axis);
-		} else if (idx >= total) {
-			progText.textContent = 'Done';
-			axisHint.textContent = '';
-		} else {
-			// idx === -1 (before start)
-			progText.textContent = 'Ready';
-			axisHint.textContent = '';
+	function setBusy(state) {
+		busy = state;
+		if (sendBtn) sendBtn.disabled = state;
+		promptEl.disabled = state;
+		if (state) {
+			updateStatus('Consulting mission control…');
 		}
 	}
 
-	// Clear and render one question; all handlers guard against finished=true
-	function renderQ(q) {
-		if (finished) return;
-		choices.replaceChildren();
-		say(q.text);
-
-		if (q.type === 'ab') {
-			['a', 'b'].forEach((k) => {
-				const b = document.createElement('button');
-				b.className = 'btn';
-				b.textContent = q[k].label;
-				b.onclick = () => {
-					if (finished) return;
-					user(b.textContent);
-					for (const ax in q[k].score) {
-						scores[ax] += q[k].score[ax];
-					}
-					next();
-				};
-				choices.appendChild(b);
-			});
-		} else {
-			for (let v = 1; v <= 5; v++) {
-				const b = document.createElement('button');
-				b.className = 'btn';
-				b.textContent = String(v);
-				b.title = '1=Strongly disagree … 5=Strongly agree';
-				b.onclick = () => {
-					if (finished) return;
-					user(String(v));
-					const w = q.weights[String(v)] || 0;
-					scores[q.axis] += w;
-					next();
-				};
-				choices.appendChild(b);
-			}
-		}
-	}
-
-	function pickType() {
-		const p = (axis, pos, neg) => (scores[axis] >= 0 ? pos : neg);
-		return p('EI', 'E', 'I') + p('SN', 'S', 'N') + p('TF', 'T', 'F') + p('JP', 'J', 'P');
-	}
-
-	// ----- Backend call for explanation
-	async function llmExplain(scores, type) {
-		const res = await fetch('/api/mbti/explain', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				scores,
-				type,
-				context: 'student hackathon, astronaut data challenge',
-			}),
+	function createBubble(text) {
+		const bubble = document.createElement('div');
+		bubble.className = 'bubble';
+		const lines = text.split(/\n/);
+		lines.forEach((line, idx) => {
+			if (idx) bubble.appendChild(document.createElement('br'));
+			bubble.appendChild(document.createTextNode(line));
 		});
-		if (!res.ok) throw new Error('LLM explain failed');
-		return res.json(); // { summary, strengths[], tips[], roles[] }
+		return bubble;
 	}
 
-	// ----- Finish (locks UI hard so it cannot continue)
-	async function finish() {
-		finished = true; // stop any further clicks
-		choices.replaceChildren(); // remove lingering buttons
-		skipBtn.disabled = true;
-		resetBtn.disabled = false;
-
-		const type = pickType();
-		say('Great work! Generating your personalized summary…');
-		typeBadge.textContent = `Type: ${type}`;
-		scoreList.innerHTML = `
-      <li>EI: ${scores.EI}</li>
-      <li>SN: ${scores.SN}</li>
-      <li>TF: ${scores.TF}</li>
-      <li>JP: ${scores.JP}</li>
-    `;
-		try {
-			const out = await llmExplain(scores, type);
-			strengthsUl.innerHTML = (out.strengths || []).map((s) => `<li>${s}</li>`).join('') || '<li>Collaborative</li>';
-			tipsUl.innerHTML = (out.tips || []).map((s) => `<li>${s}</li>`).join('') || '<li>Share thinking early</li>';
-			rolesUl.innerHTML = (out.roles || []).map((s) => `<li>${s}</li>`).join('') || '<li>Presenter</li>';
-			if (out.summary) say(out.summary);
-		} catch (e) {
-			console.error(e);
-			say('The AI summary is unavailable. Here’s a basic result card from your scores.');
-		}
-		resultCard.hidden = false;
+	function appendMessage(role, text) {
+		const message = document.createElement('div');
+		message.className = `chat-message ${role}`;
+		const avatar = document.createElement('div');
+		avatar.className = 'avatar';
+		avatar.textContent = role === 'user' ? '🧑‍🚀' : '🤖';
+		message.appendChild(avatar);
+		message.appendChild(createBubble(text));
+		logEl.appendChild(message);
+		logEl.scrollTo({ top: logEl.scrollHeight, behavior: 'smooth' });
 	}
 
-	// ----- Next question (hard stop at end)
-	function next() {
-		if (finished) return;
-		i++;
-		updateProgress();
-		if (i >= questions.length) {
-			finish();
-			return;
-		}
-		renderQ(questions[i]);
-	}
-
-	// ----- Reset everything for a new run
-	function reset() {
-		i = -1;
-		finished = false;
-		scores.EI = scores.SN = scores.TF = scores.JP = 0;
+	function resetChat() {
+		history.length = 0;
 		logEl.innerHTML = '';
-		choices.replaceChildren();
-		resultCard.hidden = true;
-		skipBtn.disabled = true;
-		resetBtn.disabled = true;
-		updateProgress();
+		if (suggestions) {
+			suggestions.classList.remove('hidden');
+			suggestions.setAttribute('aria-hidden', 'false');
+		}
+		appendMessage('bot', 'Moonbase Copilot online. Ask about astronaut data, mission stories, or presentation ideas.');
+		updateStatus('Ready for launch.');
+		promptEl.value = '';
+		autoSize();
 	}
 
-	// ----- Controls
-	startBtn.addEventListener('click', () => {
-		reset();
-		say('Welcome to the Moon Personality Bot! This is for learning & fun — not psychological advice.');
-		skipBtn.disabled = false;
-		next();
+	async function sendMessage(content) {
+		if (!content) return;
+		appendMessage('user', content);
+		history.push({ role: 'user', content });
+		if (suggestions && !suggestions.classList.contains('hidden')) {
+			suggestions.classList.add('hidden');
+			suggestions.setAttribute('aria-hidden', 'true');
+		}
+		setBusy(true);
+		try {
+			const res = await fetch('/api/chat', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ messages: [systemMessage, ...history] }),
+			});
+			if (!res.ok) throw new Error(`HTTP ${res.status}`);
+			const data = await res.json();
+			const reply = (data && (data.reply || data.message || data.content)) || 'I could not generate a response.';
+			history.push({ role: 'assistant', content: reply });
+			appendMessage('bot', reply.trim());
+			updateStatus('Awaiting your next question.');
+		} catch (err) {
+			console.error('[chat-error]', err);
+			appendMessage('bot', 'I hit interference while contacting mission control. Please try again.');
+			updateStatus('Connection interrupted.');
+		} finally {
+			setBusy(false);
+		}
+	}
+
+	function autoSize() {
+		promptEl.style.height = 'auto';
+		promptEl.style.height = Math.min(promptEl.scrollHeight, 160) + 'px';
+	}
+
+	suggestions?.addEventListener('click', (event) => {
+		const target = event.target.closest('[data-prompt]');
+		if (!target) return;
+		const suggestion = target.getAttribute('data-prompt');
+		if (!suggestion) return;
+		promptEl.value = suggestion;
+		autoSize();
+		promptEl.focus();
 	});
 
-	skipBtn.addEventListener('click', () => {
-		if (finished) return;
-		user('(skip)');
-		next();
+	form.addEventListener('submit', (event) => {
+		event.preventDefault();
+		if (busy) return;
+		const prompt = promptEl.value.trim();
+		if (!prompt) return;
+		promptEl.value = '';
+		autoSize();
+		sendMessage(prompt);
 	});
 
-	resetBtn.addEventListener('click', reset);
+	resetBtn?.addEventListener('click', () => {
+		if (busy) return;
+		resetChat();
+	});
 
-	// Init progress
-	updateProgress();
+	promptEl.addEventListener('input', autoSize);
+	resetChat();
 })();

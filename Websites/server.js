@@ -110,6 +110,31 @@ Avoid stereotypes and any medical/psych claims.`;
 	}
 });
 
+// Conversational chat endpoint for Moonbase Copilot
+app.post('/api/chat', async (req, res) => {
+	try {
+		const { messages } = req.body || {};
+		if (!Array.isArray(messages) || messages.length === 0) {
+			return res.status(400).json({ error: 'messages_required' });
+		}
+		const sanitized = messages
+			.map((m) => ({
+				role: m.role === 'assistant' ? 'assistant' : m.role === 'system' ? 'system' : 'user',
+				content: typeof m.content === 'string' ? m.content : String(m.content ?? ''),
+			}))
+			.filter((m) => m.content.trim().length)
+			.map((m) => ({ ...m, content: m.content.slice(0, 2000) }));
+		if (!sanitized.length) {
+			return res.status(400).json({ error: 'messages_empty' });
+		}
+		const reply = await callLLM(sanitized);
+		return res.json({ reply: reply?.trim() || '' });
+	} catch (e) {
+		console.error('[CHAT ROUTE ERROR]', e.message);
+		return res.status(500).json({ error: 'llm_failed' });
+	}
+});
+
 // (Optional) Route: adaptive next question (not used by default)
 app.post('/api/mbti/next-question', async (req, res) => {
 	try {
