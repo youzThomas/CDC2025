@@ -389,4 +389,179 @@ if (location.hash) {
 	});
 
 	renderStory(defaultStory);
+
+
+	(function () {
+		const PER_PAGE = 4;
+
+		// ======= YOUR LINKS HERE (url + optional name) =======
+		const PRESET_LINKS = [
+			{
+				url: 'https://public.tableau.com/views/astronauts_17435559954980/Sheet2?:language=en-US&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link',
+				name: 'Undergraduate Areas',
+			},
+			{
+				url: 'https://public.tableau.com/shared/9BWZX3X7Z?:display_count=n&:origin=viz_share_link',
+				name: 'Total Flight Hours by Countries',
+			},
+			{
+				url: 'https://public.tableau.com/views/astronauts_17435559954980/Sheet4?:language=zh-CN&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link',
+				name: 'Total Duration vs. Mission Year',
+			},
+			{
+				url: 'https://public.tableau.com/views/astronauts_17435559954980/Sheet5?:language=zh-CN&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link',
+				name: 'Which institute do most astronauts come from?',
+			},
+			{
+				url: 'https://public.tableau.com/views/astronauts_17435559954980/Sheet7?:language=zh-CN&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link',
+				name: 'Graduate Studies Areas',
+			},
+			{
+				url: 'https://public.tableau.com/views/astronauts_17435559954980/Sheet8?:language=zh-CN&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link',
+				name: 'Military Branches',
+			},
+			{
+				url: 'https://public.tableau.com/views/astronauts_17435559954980/Sheet9?:language=zh-CN&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link',
+				name: 'Count of Mission Roles ',
+			},
+			{
+				url: 'https://public.tableau.com/views/astronauts_17435559954980/Sheet11?:language=zh-CN&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link',
+				name: 'Relation Between Average Duration and Number of Total Flights',
+			},
+			{
+				url: 'https://public.tableau.com/views/astronauts_17435559954980/Sheet14?:language=zh-CN&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link',
+				name: 'Gender Over Time Across Countries',
+			},
+			{
+				url: 'https://public.tableau.com/views/astronauts_17435559954980/Sheet15?:language=zh-CN&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link',
+				name: 'Astronauts per Country Over Time',
+			},
+			{
+				url: 'https://public.tableau.com/views/astronauts_17435559954980/Sheet16?:language=zh-CN&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link',
+				name: 'Generation',
+			},
+			{
+				url: 'https://public.tableau.com/views/astronauts_17435559954980/Sheet17?:language=zh-CN&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link',
+				name: 'Scholar Status Distribution',
+			},
+			{
+				url: 'https://public.tableau.com/views/astronauts_17435559954980/Sheet18?:language=zh-CN&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link',
+				name: 'Undergraduate Major Trend',
+			},
+			{
+				url: 'https://public.tableau.com/views/astronauts_17435559954980/Sheet19?:language=zh-CN&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link',
+				name: 'Role Trend',
+			},
+			{
+				url: 'https://public.tableau.com/views/astronauts_17435559954980/Sheet20?:language=zh-CN&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link',
+				name: 'Risk Style Over Time',
+			},
+		];
+
+		// DOM
+		const listEl = document.getElementById('tbList');
+		const prevBtn = document.getElementById('tbPrev');
+		const nextBtn = document.getElementById('tbNext');
+		const metaEl = document.getElementById('tbMeta');
+		if (!listEl) return; // not on this page
+
+		// State: normalize into objects { url, name }
+		let links = PRESET_LINKS.map((item) => {
+			const url = normalize(item?.url);
+			const name = item && typeof item.name === 'string' ? item.name.trim() : '';
+			return url ? { url, name } : null;
+		}).filter(Boolean);
+		let page = 0;
+
+		// Helpers
+		function normalize(url) {
+			try {
+				const u = new URL(String(url));
+				if (!u.searchParams.has(':showVizHome')) u.searchParams.set(':showVizHome', 'no');
+				if (!u.searchParams.has(':embed')) u.searchParams.set(':embed', 'y');
+				return u.toString();
+			} catch {
+				console.warn('Bad Tableau URL skipped:', url);
+				return null;
+			}
+		}
+
+		function titleFrom(url) {
+			try {
+				const u = new URL(url);
+				const parts = u.pathname.split('/').filter(Boolean);
+				const idx = parts.indexOf('views');
+				if (idx >= 0 && parts[idx + 1]) {
+					const wb = decodeURIComponent(parts[idx + 1]).replace(/[_-]/g, ' ');
+					const sh = parts[idx + 2] ? decodeURIComponent(parts[idx + 2]).replace(/[_-]/g, ' ') : '';
+					return sh ? `${wb} — ${sh}` : wb;
+				}
+				return u.hostname;
+			} catch {
+				return 'Tableau View';
+			}
+		}
+
+		function render() {
+			const total = links.length;
+			const pages = Math.max(1, Math.ceil(total / PER_PAGE));
+			page = Math.min(Math.max(0, page), pages - 1);
+
+			metaEl.textContent = `Page ${pages ? page + 1 : 1} / ${pages} • ${total} item${total === 1 ? '' : 's'}`;
+			prevBtn.disabled = page <= 0;
+			nextBtn.disabled = page >= pages - 1;
+
+			const start = page * PER_PAGE;
+			const slice = links.slice(start, start + PER_PAGE);
+
+			listEl.innerHTML = '';
+			slice.forEach(({ url, name }) => {
+				const card = document.createElement('div');
+				card.className = 'tb-card';
+
+				const head = document.createElement('div');
+				head.className = 'tb-card-header';
+
+				const title = document.createElement('div');
+				title.className = 'tb-title';
+				title.textContent = name || titleFrom(url); // prefer custom name
+
+				head.append(title);
+				card.appendChild(head);
+
+				// Ensure the tableau-viz web component script is loaded in <head>:
+				// <script type="module" src="https://public.tableau.com/javascripts/api/tableau.embedding.3.latest.min.js"></script>
+				const viz = document.createElement('tableau-viz');
+				viz.setAttribute('src', url);
+				viz.setAttribute('toolbar', 'bottom');
+				viz.setAttribute('hide-tabs', 'false');
+				viz.style.width = '100%';
+				viz.style.height = window.innerWidth >= 1100 ? '800px' : '700px';
+
+				card.appendChild(viz);
+				listEl.appendChild(card);
+			});
+		}
+
+		// Pager
+		prevBtn?.addEventListener('click', () => {
+			page = Math.max(0, page - 1);
+			render();
+		});
+		nextBtn?.addEventListener('click', () => {
+			page = page + 1;
+			render();
+		});
+
+		// Render when the Viz tab is shown (SPA)
+		const originalShow = window.show;
+		if (typeof originalShow === 'function') {
+			window.show = function (id) {
+				originalShow(id);
+				if (id === 'viz') render();
+			};
+		}
+		if (document.getElementById('viz')?.classList.contains('active')) render();
+	})();
 })();
+

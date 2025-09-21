@@ -801,3 +801,128 @@ footer {
 	filter: blur(6px);
 	z-index: 1;
 }
+
+.viz-controls{
+  display:flex; gap:10px; margin:8px 0 10px; flex-wrap:wrap;
+}
+#tbInput{
+  flex:1; min-width:260px; padding:10px 12px; border-radius:10px;
+  border:1px solid rgba(255,255,255,.18); background:#0b2745aa; color:#e9f2ff;
+} 
+
+.viz-pager {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin: 6px 0 12px;
+}
+#tbMeta {
+	opacity: 0.85;
+	font-size: 0.95rem;
+}
+.tb-list {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 16px;
+}
+.tb-card {
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	background: rgba(255, 255, 255, 0.05);
+	border-radius: 14px;
+	overflow: hidden;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+.tb-card-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 12px;
+	background: rgba(15, 63, 110, 0.55);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.tb-title {
+	font-weight: 600;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 92%;
+}
+.tb-card tableau-viz {
+	width: 100%;
+	height: 700px;
+	display: block;
+	background: rgba(0, 0, 0, 0.15);
+}
+@media (min-width: 1100px) {
+	.tb-card tableau-viz {
+		height: 800px;
+	}
+}
+
+.subsec {
+	margin-top: 22px;
+	padding: 18px;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	background: rgba(255, 255, 255, 0.05);
+	border-radius: 14px;
+}
+.subsec-title {
+	margin: 0 0 4px;
+	font-size: 1.2rem;
+}
+.subsec-desc {
+	margin: 0 0 12px;
+	color: var(--muted);
+}
+
+/* Responsive image grid */
+.img-grid {
+	display: grid;
+	gap: 14px;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.img-grid.three {
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.img-card {
+	position: relative;
+	display: block;
+	border-radius: 12px;
+	overflow: hidden;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	background: rgba(0, 0, 0, 0.15);
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+	transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+	text-decoration: none;
+	color: inherit;
+}
+.img-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+	border-color: rgba(255, 255, 255, 0.2);
+}
+.img-card img {
+	display: block;
+	width: 100%;
+	height: 240px;
+	object-fit: cover;
+	background: #0b2745;
+}
+.img-cap {
+	position: absolute;
+	left: 10px;
+	bottom: 10px;
+	padding: 6px 10px;
+	font-size: 0.95rem;
+	background: rgba(10, 32, 58, 0.75);
+	border: 1px solid rgba(255, 255, 255, 0.14);
+	border-radius: 10px;
+	backdrop-filter: blur(2px);
+}
+
+/* Slightly taller on wide screens */
+@media (min-width: 1100px) {
+	.img-card img {
+		height: 300px;
+	}
+}

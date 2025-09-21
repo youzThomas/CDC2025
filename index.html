@@ -49,7 +49,63 @@
 				<h1>Data Visualization</h1>
 				<canvas id="chart" width="1000" height="420" role="img" aria-label="Chart canvas"></canvas>
 			</section>
+			
+			<section id="viz" class="panel" aria-label="Data Visualization">
+				<h1>Data Visualization Gallery</h1>
 
+				<section id="viz" class="panel">
+					<div class="viz-pager">
+						<button id="tbPrev" class="btn" disabled>◀ Prev</button>
+						<span id="tbMeta">Page 1 / 1 • 0 items</span>
+						<button id="tbNext" class="btn" disabled>Next ▶</button>
+					</div>
+					<div id="tbList" class="tb-list"></div>
+				</section>
+				<div id="tbList" class="tb-list"></div>
+
+				<!-- Stats Graphs (image section) -->
+				<div class="subsec">
+					<h3 class="subsec-title">Stats Graphs</h3>
+					<p class="subsec-desc">Key visuals from our analysis. Click to view full size.</p>
+					<div class="img-grid">
+						<!-- Replace src with your own images -->
+						<a class="img-card" href="pictures/asset1.png" target="_blank" rel="noopener">
+							<img src="pictures/asset1.png" alt="Astronaut counts over time" loading="lazy">
+							<span class="img-cap">Percentage of Non-Military Astronauts Selected Over Time</span>
+						</a>
+						<a class="img-card" href="pictures/asset2.png" target="_blank" rel="noopener">
+							<img src="pictures/asset2.png" alt="Mission duration distribution" loading="lazy">
+							<span class="img-cap">Correlations with 'Space Flights' and 'Space Walks'</span>
+						</a>
+						<a class="img-card" href="pictures/asset3.png" target="_blank" rel="noopener">
+							<img src="pictures/asset3.png" alt="Agencies by country" loading="lazy">
+							<span class="img-cap">Mission Age Distribution by Mission Role</span>
+						</a>
+					</div>
+				</div>
+
+				<!-- Astronaut Type Test (headline + three pictures) -->
+				<div class="subsec">
+					<h3 class="subsec-title">Astronaut Type Test</h3>
+					<p class="subsec-desc">Peek at the four-axis model we use in the chatbot and examples of team profiles.</p>
+					<div class="img-grid three">
+						<!-- Replace src with your own images -->
+						 <a class="img-card" href="pictures/type1.png" target="_blank" rel="noopener">
+      			 <img src="pictures/type1.png" alt="Astronaut" loading="lazy">
+							<figcaption class="img-cap">ASTRONAUT TYPE TEST</figcaption>
+						 </a>
+						<a class="img-card" href="pictures/type2.png" target="_blank" rel="noopener">
+      			<img src="pictures/type2.png" alt="Explorer type illustration" loading="lazy">
+							<figcaption class="img-cap">Sorted Distribution of 16 Test Results</figcaption>
+						</a>
+						<a class="img-card" href="pictures/type3.png" target="_blank" rel="noopener">
+							<img src="pictures/type3.png" alt="Distribution" loading="lazy">
+							<figcaption class="img-cap">Sorted Distribution of Test Results</figcaption>
+						</a>
+					</div>
+				</div>
+			</section>
+			
 			<section id="chat" class="panel" aria-label="Chat Bot">
 				<header class="panel-header">
 					<h2>Moonbase Copilot</h2>
