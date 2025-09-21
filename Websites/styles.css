@@ -559,19 +559,10 @@ canvas {
 	mask: linear-gradient(180deg, rgba(255, 255, 255, 0.32), transparent 65%);
 	pointer-events: none;
 }
-.story-card header {
-	display: flex;
-	align-items: center;
-	gap: 12px;
+.story-card header,
+.story-card-header {
+	display: block;
 	margin-bottom: 12px;
-}
-.story-card img {
-	width: 52px;
-	height: 52px;
-	border-radius: 14px;
-	object-fit: cover;
-	border: 2px solid rgba(91, 209, 255, 0.4);
-	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
 }
 .story-card h3 {
 	margin: 0;
@@ -791,6 +782,7 @@ footer {
 	margin-left: 0;
 	transform: translateY(clamp(12px, 2.4vh, 32px));
 	background: linear-gradient(180deg, #ffffff, #a9dcff 60%, #6cb3ff);
+	background-clip: text;
 	-webkit-background-clip: text;
 	color: transparent;
 	filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.55));

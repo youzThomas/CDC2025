@@ -340,23 +340,20 @@ if (location.hash) {
 			cardsEl.appendChild(empty);
 			return;
 		}
-		cards.forEach((card) => {
-			const article = document.createElement('article');
-			article.className = 'story-card';
-			const header = document.createElement('header');
-			const img = new Image();
-			img.src = card.image;
-			img.alt = `Portrait of ${card.name}`;
-			const meta = document.createElement('div');
-			const title = document.createElement('h3');
-			title.textContent = card.name;
-			const role = document.createElement('p');
-			role.className = 'story-role';
-			role.textContent = card.title;
-			meta.appendChild(title);
-			meta.appendChild(role);
-			header.appendChild(img);
-			header.appendChild(meta);
+			cards.forEach((card) => {
+				const article = document.createElement('article');
+				article.className = 'story-card';
+				const header = document.createElement('header');
+				header.className = 'story-card-header';
+				const meta = document.createElement('div');
+				const title = document.createElement('h3');
+				title.textContent = card.name;
+				const role = document.createElement('p');
+				role.className = 'story-role';
+				role.textContent = card.title;
+				meta.appendChild(title);
+				meta.appendChild(role);
+				header.appendChild(meta);
 			const body = document.createElement('p');
 			body.textContent = card.description;
 			const footer = document.createElement('footer');
